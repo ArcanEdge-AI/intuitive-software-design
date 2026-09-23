@@ -1,0 +1,36 @@
+{
+  "name": "intuitive-software-design",
+  "version": "1.2.0",
+  "description": "A measurable standard with user-task, product-model, decision-support, multi-role, and evaluation workflows for intuitive software.",
+  "author": {
+    "name": "ArcanEdge AI"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "intuitive-design",
+    "software-design",
+    "design-review",
+    "usability-audit",
+    "interaction-design"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Intuitive Software Design",
+    "shortDescription": "Design and evaluate software users can predict.",
+    "longDescription": "Applies the Intuitive Software Design Standard through task walkthroughs, product mental models, decision support, multi-role handoffs, and UI/Flow/Feel reviews. Includes focused findability, language, and experience-progression guidance, formal audits, smallest-complete-change improvements, and a behavioral evaluation kit.",
+    "developerName": "ArcanEdge AI",
+    "category": "Design",
+    "capabilities": [
+      "Design",
+      "Review",
+      "Audit",
+      "Planning"
+    ],
+    "defaultPrompt": [
+      "Audit this workflow for intuition failures.",
+      "Review this interface using UI, Flow, and Feel.",
+      "Help design this feature to minimize friction."
+    ],
+    "brandColor": "#4F46E5"
+  }
+}

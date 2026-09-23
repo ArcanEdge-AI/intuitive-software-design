@@ -1,0 +1,4 @@
+interface:
+  display_name: "Multi-Role Workflow"
+  short_description: "Trace ownership, shared states, and handoffs."
+  default_prompt: "Use $multi-role-workflow to map this task across actors, permissions, shared states, and handoffs."

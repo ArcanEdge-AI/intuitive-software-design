@@ -1,0 +1,4 @@
+interface:
+  display_name: "Intuitive Software Design"
+  short_description: "Design, review, audit, and improve software."
+  default_prompt: "Use $intuitive-software-design to audit this software experience."

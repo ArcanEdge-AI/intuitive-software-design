@@ -1,0 +1,4 @@
+interface:
+  display_name: "Decision-Support Design"
+  short_description: "Put needed information beside meaningful choices."
+  default_prompt: "Use $decision-support-design to review the information, tradeoffs, and consequences of these user choices."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "User-Task Walkthrough"
+  short_description: "Trace user goals, decisions, and UI outcomes."
+  default_prompt: "Use $user-task-walkthrough to trace how an intended user would complete this task through the interface."

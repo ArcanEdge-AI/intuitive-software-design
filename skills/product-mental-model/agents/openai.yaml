@@ -1,0 +1,4 @@
+interface:
+  display_name: "Product Mental Model"
+  short_description: "Map domain concepts before arranging the UI."
+  default_prompt: "Use $product-mental-model to map the user's concepts and compare them with this product's structure."

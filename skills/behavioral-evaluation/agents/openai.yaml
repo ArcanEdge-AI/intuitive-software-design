@@ -1,0 +1,4 @@
+interface:
+  display_name: "Behavioral Evaluation"
+  short_description: "Compare agent findings against realistic UI fixtures."
+  default_prompt: "Use $behavioral-evaluation to prepare a bounded evaluation of this plugin and assess captured results."
