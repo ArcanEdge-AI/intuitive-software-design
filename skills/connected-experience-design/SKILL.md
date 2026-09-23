@@ -2,6 +2,7 @@
 name: connected-experience-design
 description: Design or review how a user's task, identity, saved state, and service outcomes continue across relevant devices, platforms, products, or external systems. Use when system behavior changes user effort, trust, recovery, or a product promise; do not presume universal synchronization.
 ---
+<!-- Copyright 2026 ArcanEdge AI. Licensed under Apache-2.0; preserve this notice when redistributing. Source: https://github.com/ArcanEdge-AI/intuitive-software-design -->
 
 # Connected Experience Design
 

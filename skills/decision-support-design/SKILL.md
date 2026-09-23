@@ -2,6 +2,7 @@
 name: decision-support-design
 description: Design or review the information, comparisons, defaults, and consequences needed for meaningful user choices. Use for selection, comparison, approval, configuration, or purchase decisions when the UI may ask people to choose before they have enough information.
 ---
+<!-- Copyright 2026 ArcanEdge AI. Licensed under Apache-2.0; preserve this notice when redistributing. Source: https://github.com/ArcanEdge-AI/intuitive-software-design -->
 
 # Decision-Support Design
 

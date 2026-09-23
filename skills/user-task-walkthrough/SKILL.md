@@ -2,6 +2,7 @@
 name: user-task-walkthrough
 description: Walk through how an intended user would discover, decide, act, and verify completion across a product or website UI. Use when reviewing task usability, understanding a user journey, or shaping a workflow before proposing interface changes. Distinguish user-visible knowledge from agent implementation knowledge; do not use for visual styling alone.
 ---
+<!-- Copyright 2026 ArcanEdge AI. Licensed under Apache-2.0; preserve this notice when redistributing. Source: https://github.com/ArcanEdge-AI/intuitive-software-design -->
 
 # User-Task Walkthrough
 

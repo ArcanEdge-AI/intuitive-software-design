@@ -5,6 +5,7 @@
   "author": {
     "name": "ArcanEdge AI"
   },
+  "license": "Apache-2.0",
   "homepage": "https://www.arcanedge.ai/",
   "repository": "https://github.com/ArcanEdge-AI/intuitive-software-design"
 }

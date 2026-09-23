@@ -2,6 +2,7 @@
 name: behavioral-evaluation
 description: Prepare or assess controlled evaluations of Intuitive Software Design agent outputs using realistic UI task fixtures and separate acceptance criteria. Use when testing plugin quality or comparing plugin versions; not for scoring a live product's usability or treating agent results as human research.
 ---
+<!-- Copyright 2026 ArcanEdge AI. Licensed under Apache-2.0; preserve this notice when redistributing. Source: https://github.com/ArcanEdge-AI/intuitive-software-design -->
 
 # Behavioral Evaluation
 

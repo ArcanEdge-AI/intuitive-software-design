@@ -2,6 +2,7 @@
 name: intuitive-software-design
 description: Design, review, formally audit, score, or improve software screens, workflows, navigation, forms, dashboards, interactions, and product behavior using the Intuitive Software Design Standard. Use when the user asks whether software is intuitive, requests UI/Flow/Feel analysis, or wants the smallest evidence-grounded changes that reduce interaction friction. Do not use as a visual-style or trend critique.
 ---
+<!-- Copyright 2026 ArcanEdge AI. Licensed under Apache-2.0; preserve this notice when redistributing. Source: https://github.com/ArcanEdge-AI/intuitive-software-design -->
 
 # Intuitive Software Design
 

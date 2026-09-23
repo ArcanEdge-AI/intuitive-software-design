@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/version-1.3.0-9F7AEA?style=for-the-badge" alt="Version 1.3.0" />
   <img src="https://img.shields.io/badge/skills-8-2563EB?style=for-the-badge" alt="Eight focused skills" />
   <img src="https://img.shields.io/badge/harness-Claude%20Code%20%7C%20Codex-111827?style=for-the-badge" alt="Claude Code and Codex plugin formats" />
-  <img src="https://img.shields.io/badge/reuse%20rights-not%20granted-52525B?style=for-the-badge" alt="Reuse rights not granted" />
+  <img src="https://img.shields.io/badge/license-Apache--2.0-9F7AEA?style=for-the-badge" alt="Apache License 2.0" />
 </p>
 
 <p align="center">
@@ -120,6 +120,8 @@ The structural tests check the package and its routing expectations. Use a fresh
 ├── .claude-plugin/       # Claude Code plugin manifest
 ├── .codex-plugin/        # Codex plugin manifest
 ├── assets/               # ArcanEdge plugin artwork
+├── LICENSE               # Apache License 2.0
+├── NOTICE                # Attribution to ArcanEdge AI and source repository
 ├── skills/               # Eight self-contained skill workflows
 └── tests/                # Structural checks and forward-test scenarios
 ```
@@ -130,4 +132,6 @@ Intuitive Software Design is published by [ArcanEdge](https://www.arcanedge.ai/)
 
 ## License
 
-This repository is public, but its contents are **unlicensed**. No permission to reuse, modify, or redistribute the plugin is granted by public visibility alone. Contact [ArcanEdge](https://www.arcanedge.ai/) for licensing questions.
+This project is licensed under the [Apache License 2.0](LICENSE). You may use, modify, and distribute it, including in commercial products, subject to the license terms.
+
+If you distribute this project or a derivative based on it, retain the license and the ArcanEdge attribution notice in [NOTICE](NOTICE), as required by the license. Each main skill file also carries a short source notice so attribution travels with individually reused skills. You do not have to publish private changes or contribute improvements back. The license does not grant permission to use ArcanEdge names or marks as your own branding.

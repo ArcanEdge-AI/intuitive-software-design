@@ -2,6 +2,7 @@
 name: product-mental-model
 description: Map the objects, relationships, lifecycle states, and language an intended user works with before shaping product navigation or screen structure. Use when a UI exposes implementation modules, the product model is unclear, or a workflow needs information architecture grounded in domain work.
 ---
+<!-- Copyright 2026 ArcanEdge AI. Licensed under Apache-2.0; preserve this notice when redistributing. Source: https://github.com/ArcanEdge-AI/intuitive-software-design -->
 
 # Product Mental Model
 

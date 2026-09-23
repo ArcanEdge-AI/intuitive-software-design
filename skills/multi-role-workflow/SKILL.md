@@ -2,6 +2,7 @@
 name: multi-role-workflow
 description: Map product work across people, permissions, ownership, queues, and external handoffs. Use when a task requires submission, review, approval, processing, or collaboration and one person's completion depends on another actor or system.
 ---
+<!-- Copyright 2026 ArcanEdge AI. Licensed under Apache-2.0; preserve this notice when redistributing. Source: https://github.com/ArcanEdge-AI/intuitive-software-design -->
 
 # Multi-Role Workflow
 

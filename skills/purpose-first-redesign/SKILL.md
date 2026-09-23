@@ -2,6 +2,7 @@
 name: purpose-first-redesign
 description: Redesign an existing software page or workflow when the user grants broad creative freedom and wants to discuss how it should work. Map the page's real purpose, users, data, actions, and downstream flows first; use GitNexus when available. Treat the current layout as evidence, not a constraint, and do not implement until the user asks.
 ---
+<!-- Copyright 2026 ArcanEdge AI. Licensed under Apache-2.0; preserve this notice when redistributing. Source: https://github.com/ArcanEdge-AI/intuitive-software-design -->
 
 # Purpose-First Redesign
 
