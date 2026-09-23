@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "intuitive-software-design"
 REDESIGN_SKILL = ROOT / "skills" / "purpose-first-redesign"
+CONNECTED_SKILL = ROOT / "skills" / "connected-experience-design"
 REFERENCES = SKILL / "references"
 SCENARIOS = ROOT / "tests" / "scenarios"
 
@@ -30,6 +31,7 @@ def test_manifest() -> None:
     manifest = json.loads(text(manifest_path))
     require(manifest["name"] == ROOT.name == "intuitive-software-design", "Plugin name/folder mismatch")
     require(re.fullmatch(r"\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?", manifest["version"]) is not None, "Version is not semver")
+    require(manifest["version"].split("+", 1)[0] == "1.3.0", "Manifest version was not advanced for the connected-experience capability")
     require(manifest.get("skills") == "./skills/", "Manifest must expose ./skills/")
     require("mcpServers" not in manifest and "apps" not in manifest and "hooks" not in manifest, "Plugin must remain self-contained")
     interface = manifest["interface"]
@@ -68,6 +70,26 @@ def test_purpose_first_redesign_contract() -> None:
     require("$purpose-first-redesign" in openai, "Redesign default prompt must name the skill")
 
 
+def test_connected_experience_contract() -> None:
+    skill = text(CONNECTED_SKILL / "SKILL.md")
+    required = (
+        "Shared identity",
+        "Shared data",
+        "Task handoff",
+        "Platform capability",
+        "Connected action",
+        "actual current and durable state",
+        "universal synchronization",
+        "marketing statement as a promise to investigate",
+        "privacy and authority",
+        "Source can show what code is intended to do",
+    )
+    for token in required:
+        require(token.lower() in skill.lower(), f"Connected-experience contract missing: {token}")
+    openai = text(CONNECTED_SKILL / "agents" / "openai.yaml")
+    require("$connected-experience-design" in openai, "Connected-experience default prompt must name the skill")
+
+
 def test_authoritative_standard() -> None:
     standard = text(REFERENCES / "intuitive-software-design-standard.md")
     required = (
@@ -79,6 +101,9 @@ def test_authoritative_standard() -> None:
         "CONFIRM",
         "CONTINUE",
         "Technical Architecture ≠ User Workflow",
+        "System-backed experience",
+        "actual saved, shared, or external state",
+        "universal synchronization",
         "Prediction Gap",
         "Decision Density",
         "Navigation Friction",
@@ -174,7 +199,7 @@ def test_bundled_skill_discovery() -> None:
     expected = {
         "intuitive-software-design", "purpose-first-redesign", "user-task-walkthrough",
         "product-mental-model", "decision-support-design", "multi-role-workflow",
-        "behavioral-evaluation",
+        "behavioral-evaluation", "connected-experience-design",
     }
     found = {path.parent.name for path in (ROOT / "skills").glob("*/SKILL.md")}
     require(found == expected, f"Bundled skill catalog mismatch: {sorted(found)}")
@@ -194,8 +219,8 @@ def test_evaluation_kit_integrity() -> None:
         (kit / target).resolve()
         for target in re.findall(r"\[[^\]]+\]\((fixtures/[^)]+)\)", index)
     }
-    require(len(packets) == 8 and {p.resolve() for p in packets} == linked,
-            "Every evaluation packet must be indexed exactly once within the eight-case set")
+    require(len(packets) == 11 and {p.resolve() for p in packets} == linked,
+            "Every evaluation packet must be indexed exactly once within the eleven-case set")
     text(kit / "assessor-rubric.md")
     text(kit / "comparison-record.md")
     for packet in packets:
@@ -209,6 +234,7 @@ def main() -> None:
         test_manifest,
         test_skill_contract,
         test_purpose_first_redesign_contract,
+        test_connected_experience_contract,
         test_authoritative_standard,
         test_scoring_contract,
         test_references_and_links,

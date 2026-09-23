@@ -85,6 +85,8 @@ Inventory meaningful decisions and reduce Decision Density by deferring only cho
 
 Use [User-Task Walkthrough](../user-task-walkthrough/SKILL.md) to ground this loop in the intended person's knowledge and visible decision cues before proposing the product model. Trace the important existing journey and relevant continuation/recovery, then distinguish it from the proposed journey. Implementation knowledge from the purpose map must not silently become user knowledge.
 
+When the page depends on saved work, identity, or a task continuing across devices, platforms, products, or services, use [Connected Experience Design](../connected-experience-design/SKILL.md) for those boundaries. Keep the redesign centered on the user's outcome; do not turn a product map into a request for universal sync or an architecture rewrite.
+
 ## 5. Propose the strongest product model
 
 Recommend one coherent direction, not a pile of interchangeable mockups. Include alternatives only when they represent materially different workflows or tradeoffs.

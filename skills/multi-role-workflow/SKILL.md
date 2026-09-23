@@ -14,7 +14,7 @@ Establish the overall outcome and each actor's legitimate subtask. Identify the 
 | Stage / shared object | Actor and authority | Input and prerequisite | Action / transition | Next owner and visible acknowledgment | Failure / recovery | Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
 
-Separate **permission**, **responsibility**, and **visibility**. A manager who can view a request may not own its next action. A successful submission does not prove delivery, review, approval, processing, or payment.
+Separate **permission**, **responsibility**, and **visibility**. A manager who can view a request may not own its next action. A successful submission does not prove delivery, review, approval, processing, or payment. Treat a service or integration as a system boundary with a real state transition, not automatically as another human role. When the same work must continue across devices or products, use [Connected Experience Design](../connected-experience-design/SKILL.md) for the relevant task and state continuity.
 
 ## Inspect consequential handoffs
 
@@ -26,6 +26,7 @@ For the task, check:
 - whether amendments, returns, cancellation, and failed delivery preserve ownership and history;
 - whether simultaneous edits, stale approvals, duplicate processing, or reassignment affect correctness;
 - whether external completion is acknowledged and reconciliation/retry is clear when evidence supports such a boundary;
+- whether a downstream service actually accepted or completed its stage, rather than merely receiving a request;
 - whether each role sees appropriate information without exposing another role's private data.
 
 Select checks by actual risk and scope. Do not add an enterprise queue or audit system to a simple workflow without a demonstrated need. An email notification alone does not prove the recipient can access or act on the object.

@@ -1,111 +1,133 @@
-# Intuitive Software Design
+<p align="center">
+  <img src="assets/logo.png" alt="ArcanEdge gold geometric mark" width="180" />
+</p>
 
-Intuitive Software Design is a self-contained Codex plugin for designing, reviewing, auditing, scoring, and improving software interfaces and workflows. It turns “make it intuitive” into an evidence-grounded system centered on the intended user, UI/Flow/Feel, the Intuitive Software Loop, Prediction Gap, Decision Density, friction types, 0-4 behavioral scoring, severity, and Critical Failures.
+<h1 align="center">Intuitive Software Design</h1>
 
-**License:** `UNLICENSED`. No reuse license is granted by this public repository.
+<p align="center"><strong>Engineer the backend so well that users get a smooth, likeable experience with minimal effort.</strong></p>
 
-## What is included
+<p align="center">An evidence-grounded plugin for designing, reviewing, and improving software around the real tasks people need to complete.</p>
 
-- one routed Codex skill with `DESIGN`, `REVIEW`, `AUDIT`, and `IMPROVE` modes;
-- a purpose-first redesign skill that maps an existing page with GitNexus before proposing a fresh product model;
-- a user-task walkthrough skill that traces a person's knowledge, decisions, expected consequences, completion, and recovery across applications and websites;
-- product mental-model, decision-support, and multi-role workflow skills;
-- focused findability, UI-language, and experience-progression references loaded only when relevant;
-- a behavioral evaluation skill with eight raw fixture packets, a separate assessor rubric, and a comparison record;
-- the authoritative Intuitive Software Design Standard;
-- detailed screen, workflow, and product scoring guidance;
-- six explanatory Mermaid diagrams and concrete before/after examples;
-- reusable audit and AI-review templates;
-- structural tests plus ten forward-test scenarios (behavioral prompts, not proof of executed model evaluations).
+<p align="center">
+  <img src="https://img.shields.io/badge/version-1.3.0-9F7AEA?style=for-the-badge" alt="Version 1.3.0" />
+  <img src="https://img.shields.io/badge/skills-8-2563EB?style=for-the-badge" alt="Eight focused skills" />
+  <img src="https://img.shields.io/badge/harness-Claude%20Code%20%7C%20Codex-111827?style=for-the-badge" alt="Claude Code and Codex plugin formats" />
+  <img src="https://img.shields.io/badge/reuse%20rights-not%20granted-52525B?style=for-the-badge" alt="Reuse rights not granted" />
+</p>
 
-No MCP server, external app, backend, account, or network service is required.
+<p align="center">
+  <a href="#overview">Overview</a> ·
+  <a href="#install">Install</a> ·
+  <a href="#try-it">Try it</a> ·
+  <a href="#whats-included">What's included</a> ·
+  <a href="#the-design-loop">Design loop</a> ·
+  <a href="#behavioral-evaluation">Evaluation</a> ·
+  <a href="#license">License</a>
+</p>
 
-## Install in Codex
+## Overview
 
-The source is designed for the personal marketplace layout:
+Intuitive Software Design helps an agent connect what a person sees to what the product does behind the scenes. It examines the user's goal, mental model, decisions, roles, saved state, connected services, and recovery paths so the experience makes sense from start to finish.
+
+The standard uses three lenses:
+
+| Lens | What it examines |
+| --- | --- |
+| **UI** | Whether people can find, understand, and operate the controls in front of them. |
+| **Flow** | Whether the steps, decisions, state changes, and handoffs support the task. |
+| **Feel** | Whether the experience earns confidence through clear feedback, reliable outcomes, and considerate effort. |
+
+It is designed for product and coding agents working on websites, applications, and cross-platform workflows. The package includes native plugin manifests for Claude Code and Codex, with reusable guidance organized as focused skills.
+
+## Install
+
+### Claude Code
+
+For a local trial from the repository root:
+
+```bash
+claude --plugin-dir .
+```
+
+When the plugin is available in Claude's directory, find **Intuitive Software Design** in the plugin browser and install it there.
+
+### Codex
+
+Install **Intuitive Software Design** from the Codex plugin marketplace. In a task, mention the plugin by name or describe the work you want help with.
+
+## Try it
+
+Ask naturally. For example:
 
 ```text
-<user-profile>/plugins/intuitive-software-design
-<user-profile>/.agents/plugins/marketplace.json
+Review this checkout flow from the customer's point of view.
+Walk through how a first-time visitor decides whether to request a demo.
+Map the user's mental model before we reorganize this dashboard.
+Trace this approval from submission through review and completion.
+Check how the task continues across devices and connected services.
+Suggest the smallest complete change that would make this experience clearer.
 ```
 
-The marketplace entry must point to:
+The main skill routes the request into **Design**, **Review**, **Audit**, or **Improve** guidance and loads supporting references only when they help.
 
-```json
-{
-  "name": "intuitive-software-design",
-  "source": {
-    "source": "local",
-    "path": "./plugins/intuitive-software-design"
-  },
-  "policy": {
-    "installation": "AVAILABLE",
-    "authentication": "ON_INSTALL"
-  },
-  "category": "Design"
-}
-```
+## What's included
 
-The default personal marketplace is discovered by Codex. In a Codex build that exposes plugin installation in the app, open the plugin from the local marketplace and install/enable it there. Start a new task after installation or source updates so the task receives the refreshed plugin catalog.
+| Skill | Use it to |
+| --- | --- |
+| `intuitive-software-design` | Apply the central standard to design, review, audit, or improve a product experience. |
+| `purpose-first-redesign` | Understand a product's purpose and current structure before proposing a redesign. |
+| `user-task-walkthrough` | Trace a person's goal, knowledge, decisions, expected consequences, completion, and recovery. |
+| `product-mental-model` | Align product concepts, content, and navigation with how users understand the work. |
+| `decision-support-design` | Help people compare options, understand trade-offs, and choose with confidence. |
+| `multi-role-workflow` | Clarify ownership, state transitions, handoffs, and recovery across roles. |
+| `connected-experience-design` | Design task-relevant continuity across devices, platforms, products, and services. |
+| `behavioral-evaluation` | Run a structured, separate assessment of agent outputs with controlled scenarios. |
 
-Local updates use the plugin-creator marketplace/cachebuster helpers and `codex plugin add intuitive-software-design@personal`. Start a fresh task after reinstalling; existing tasks do not receive a new catalog automatically. Keep local and published package versions distinct during testing.
+The skills share one authoritative standard rather than maintaining competing definitions. Supporting files include audit and review templates, worked examples, scoring guidance, UI language and findability references, and six Mermaid diagrams.
 
-## Invoke
+## The design loop
 
-Select or mention the **Intuitive Software Design** plugin in Codex, then ask naturally:
+1. **Start with the person's goal.** Identify what they came to do and what they need to know.
+2. **Map the product they encounter.** Connect concepts, navigation, decisions, roles, and system boundaries.
+3. **Walk through the task.** Follow meaningful states from entry through completion, including errors and recovery.
+4. **Evaluate the experience.** Look for friction, prediction gaps, unnecessary decision density, and critical failures across UI, Flow, and Feel.
+5. **Recommend a complete improvement.** Make the smallest change that resolves the supported problem without hiding backend constraints from the user.
+6. **Check the evidence.** Separate observed behavior from assumptions and verify predictions with the product and intended users.
 
-```text
-@Intuitive Software Design audit this application.
-@Intuitive Software Design review this workflow.
-@Intuitive Software Design help design this feature.
-@Intuitive Software Design score this screen.
-@Intuitive Software Design improve this interface.
-```
+The plugin treats synchronization as a product decision, not a default. It asks which information should continue across systems, who may see it, what happens when services disagree, and how a person can recover.
 
-When direct skill syntax is available, the bundled skill can also be invoked as:
+## Behavioral evaluation
 
-```text
-$intuitive-software-design audit the create-project workflow.
-$purpose-first-redesign map the Projects page and propose how it should work before implementation.
-$user-task-walkthrough trace how a first-time visitor would evaluate our service and decide whether to enquire.
-$product-mental-model map the user's concepts before reorganizing this interface.
-$decision-support-design review this plan-selection step.
-$multi-role-workflow trace this request through submission, review, and processing.
-$behavioral-evaluation prepare a controlled comparison of this plugin's outputs.
-```
+The evaluation kit contains eleven fictional scenario packets, a separate assessor rubric, and a comparison record. It covers product structure, decisions, findability, language, handoffs, experience progression, false success, appropriate density, cross-device continuation, promise-to-product continuity, and a local-only counterexample.
 
-Installed plugin catalogs may display the fully qualified skill name as:
+These fixtures support repeatable review; they do not prove that a model evaluation or human usability study has been run. Walkthrough predictions remain hypotheses until checked against the real product and intended-user evidence. Record not-run cases honestly and compare versions with matching inputs and settings where practical.
 
-```text
-intuitive-software-design:intuitive-software-design
-intuitive-software-design:purpose-first-redesign
-intuitive-software-design:user-task-walkthrough
-intuitive-software-design:product-mental-model
-intuitive-software-design:decision-support-design
-intuitive-software-design:multi-role-workflow
-intuitive-software-design:behavioral-evaluation
-```
+## Validate the package
 
-The user normally does not need to choose an internal workflow. The main skill classifies the request as Design, Review, Audit, or Improve and uses a task walkthrough when the outcome depends on discovering, choosing, or completing a task. Walkthrough predictions remain hypotheses until checked against intended-user evidence.
+From the repository root:
 
-## Validate
-
-From the plugin root, run:
-
-```powershell
+```bash
 python tests/test_plugin.py
-python C:\Users\<you>\.codex\skills\.system\skill-creator\scripts\quick_validate.py skills\intuitive-software-design
-python C:\Users\<you>\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py .
+claude plugin validate .
 ```
 
-Use a fresh Codex process for behavioral testing. The scenario prompts and acceptance gates are in `tests/scenarios/`.
+The structural tests check the package and its routing expectations. Use a fresh agent session for behavior checks so it loads the current plugin version.
 
-## Test agent-output quality
+## Repository map
 
-The reusable kit is in `skills/behavioral-evaluation/`. Start a fresh task with the locally installed plugin and one raw packet from its `references/fixtures/` directory. Give the execution task the packet and plugin, without the assessor rubric or a prior answer. Capture the response, then assess it separately against `references/assessor-rubric.md` and record provenance using `references/comparison-record.md`.
+```text
+.
+├── .claude-plugin/       # Claude Code plugin manifest
+├── .codex-plugin/        # Codex plugin manifest
+├── assets/               # ArcanEdge plugin artwork
+├── skills/               # Eight self-contained skill workflows
+└── tests/                # Structural checks and forward-test scenarios
+```
 
-The eight cases cover product structure, decisions, findability, wording, handoffs, experience progression, false success, and appropriate density. Fixtures are fictional; passing them does not establish human usability. Preparing the kit does not dispatch paid model calls. Record not-run cases honestly and compare versions under matching inputs/settings where feasible.
+## About ArcanEdge
 
-## Authoritative-source rule
+Intuitive Software Design is published by [ArcanEdge](https://www.arcanedge.ai/). Its guiding principle is simple: do the hard system work so people can complete their task with clarity, confidence, and as little unnecessary effort as possible.
 
-`skills/intuitive-software-design/references/intuitive-software-design-standard.md` is authoritative. The scoring reference and templates are operational projections of that standard. If a companion file conflicts, the standard controls and the companion should be corrected.
+## License
+
+This repository is public, but its contents are **unlicensed**. No permission to reuse, modify, or redistribute the plugin is granted by public visibility alone. Contact [ArcanEdge](https://www.arcanedge.ai/) for licensing questions.

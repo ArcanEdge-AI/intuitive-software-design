@@ -1,0 +1,4 @@
+interface:
+  display_name: "Connected Experience Design"
+  short_description: "Design reliable continuity across relevant surfaces."
+  default_prompt: "Use $connected-experience-design to trace this task across its relevant devices, services, and saved state."

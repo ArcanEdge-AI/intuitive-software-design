@@ -1,6 +1,6 @@
 # Intuitive Software Design Standard
 
-Version 1.0 — Normative source
+Version 1.1 — Normative source
 
 This document is the authoritative standard for the Intuitive Software Design plugin. Companion scorecards, examples, and templates operationalize it; this document controls if wording conflicts.
 
@@ -154,6 +154,27 @@ These principles affect more than one layer and should not be forced into a sing
 | Error prevention | Risk is distinguishable. | Constraints prevent invalid paths. | Consequences are confirmed where necessary. |
 | Error recovery | Error location and cause are clear. | Return paths preserve work. | Recovery is visible and trustworthy. |
 | User confidence | State and options are legible. | The next step and completion are clear. | Results and recovery can be trusted. |
+| System-backed experience | The interface makes supported continuity and current state legible. | Relevant identity, task, and information carry across surfaces when the job requires it. | Acknowledgment reflects actual service and data outcomes; interruption and recovery are understandable. |
+
+### System-backed experience
+
+The user's experience is produced by the interface and the service, data, identity, and integrations behind it. Evaluate those system behaviors through their consequences for `UI`, `Flow`, and `Feel`; they are not a fourth layer or score. The goal is reliable support for the user's job, with less avoidable re-entry, waiting, uncertainty, and recovery work. Dependable state, timely feedback, and graceful recovery should make the product feel smooth and considerate while preserving meaningful user choice.
+
+When the task depends on a backend or another surface, trace the relevant experience contract:
+
+```text
+User intent and product promise
+  -> entry surface and identity/authority
+  -> task or domain-object identity
+  -> operation and relevant system boundaries
+  -> actual saved, shared, or external state
+  -> truthful acknowledgment
+  -> continuation or recovery
+```
+
+Select only the boundaries that matter to the task. Shared identity, shared data, resuming a specific task, platform capability, and an action completed by an external service are different forms of continuity. Do not infer that one implies the others, that the same interface must appear on every platform, or that all user data should sync. Preserve purposeful user decisions and minimize unnecessary data movement.
+
+Distinguish a request being sent, work being pending, data being saved, an external action being completed, and a person being able to continue. A toast or optimistic screen update does not prove durable state. Use read-back, reload, an authorized downstream view, or other suitable evidence when persistence or cross-surface state matters. Source and tests can explain implementation behavior; they do not by themselves prove that people can discover the result or understand its status.
 
 ## 8. The Intuitive Software Loop
 
@@ -1052,6 +1073,8 @@ The standard must not be used to:
 - hide Critical Failures inside aggregate scores;
 - recommend additional components, abstractions, steps, or navigation without clear benefit;
 - treat technical architecture as the default user workflow;
+- prescribe universal synchronization, identical cross-platform interfaces, or unnecessary background work without a task-grounded need;
+- treat a marketing promise, dispatched request, or optimistic update as proof of a completed user outcome;
 - claim an inaccessible experience is fully intuitive;
 - remove necessary risk controls in the name of fewer steps.
 

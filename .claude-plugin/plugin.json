@@ -1,0 +1,10 @@
+{
+  "name": "intuitive-software-design",
+  "version": "1.3.0",
+  "description": "Design and evaluate software around users' real tasks, clear decisions, and reliable connected experiences.",
+  "author": {
+    "name": "ArcanEdge AI"
+  },
+  "homepage": "https://www.arcanedge.ai/",
+  "repository": "https://github.com/ArcanEdge-AI/intuitive-software-design"
+}

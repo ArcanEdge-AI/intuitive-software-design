@@ -12,5 +12,8 @@ Provide the selected fixture packet to the execution task. Keep the separate ass
 | 06 | First-product-use and repeat efficiency | [Dispatch schedule](fixtures/06-progression.md) |
 | 07 | Misleading success and actual task outcome | [Failed save](fixtures/07-false-success.md) |
 | 08 | Counterexample to visual simplification | [Clear dense comparison](fixtures/08-density-counterexample.md) |
+| 09 | Shared data versus resumable task context across devices | [Cross-device continuation](fixtures/09-cross-device-continuation.md) |
+| 10 | Product promise versus first cross-platform task | [Promise-to-product continuity](fixtures/10-promise-to-product.md) |
+| 11 | Counterexample to unnecessary synchronization | [Local-only requirements](fixtures/11-local-only-counterexample.md) |
 
 For assessment after capture, use [the assessor rubric](assessor-rubric.md). For controlled comparisons, use [the record template](comparison-record.md).

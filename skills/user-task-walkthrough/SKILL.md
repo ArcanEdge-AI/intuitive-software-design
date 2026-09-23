@@ -37,11 +37,11 @@ At each meaningful transition, examine:
 
 If several actions appear plausible, record the ambiguity and trace a consequential alternative when useful. Do not choose the correct action solely because implementation inspection revealed it.
 
-For a website, the job may be to understand the offer, establish trust, compare options, or decide whether to enquire. Evaluate whether the person's information needs are met; do not assume conversion is their only goal. For an application, trace the domain work and its effects on saved state and downstream work. For an unbuilt design, trace proposed cues and transitions and label them as design hypotheses.
+For a website, the job may be to understand the offer, establish trust, compare options, or decide whether to enquire. Evaluate whether the person's information needs are met; do not assume conversion is their only goal. When a claim promises less re-entry, saved progress, or use across devices or services, follow that promise into the first relevant product task and compare it with demonstrated behavior. For an application, trace the domain work and its effects on saved state and downstream work. For an unbuilt design, trace proposed cues and transitions and label them as design hypotheses.
 
 ## Choose relevant variants and evidence
 
-Select variants by task consequence and available evidence: first encounter versus repeat use; invalid input or a changed decision; interruption and return; slow/failed/partial work; permission boundaries; supported mobile, keyboard, or assistive-technology use. Explain the coverage selected. Do not manufacture errors or force an exhaustive matrix onto a small request.
+Select variants by task consequence and available evidence: first encounter versus repeat use; invalid input or a changed decision; interruption and return; slow/failed/partial work; permission boundaries; supported mobile, keyboard, or assistive-technology use. If continuation crosses devices, platforms, or service boundaries, use [Connected Experience Design](../connected-experience-design/SKILL.md) to select the relevant identity, task-state, persistence, and recovery checks. Explain the coverage selected. Do not manufacture errors or force an exhaustive matrix onto a small request.
 
 When runtime access is available, use the available browser or product tools to inspect visible states and authorized interactions. Record the tested role, route/state, action, outcome, and supporting screenshot, log, or artifact where useful. Review authority before saving, sending, purchasing, deleting, or changing permissions; a walkthrough is not permission to mutate real data. If an action cannot be exercised, preserve the prediction and mark its result unknown.
 
@@ -51,7 +51,7 @@ Use supplied interviews, support reports, usability observations, or analytics t
 
 ## Return an actionable result
 
-Use focused guidance when the trace reveals a deeper cause: [product mental model](../product-mental-model/SKILL.md) for unclear domain structure, [decision support](../decision-support-design/SKILL.md) for missing choice information, and [multi-role workflow](../multi-role-workflow/SKILL.md) for handoffs. For local cue concerns, read [findability](../intuitive-software-design/references/findability.md), [UI language](../intuitive-software-design/references/ui-language.md), or [experience progression](../intuitive-software-design/references/experience-progression.md) as relevant. Do not expand a small walkthrough into all companion workflows.
+Use focused guidance when the trace reveals a deeper cause: [product mental model](../product-mental-model/SKILL.md) for unclear domain structure, [decision support](../decision-support-design/SKILL.md) for missing choice information, [multi-role workflow](../multi-role-workflow/SKILL.md) for human ownership handoffs, and [connected experience design](../connected-experience-design/SKILL.md) for relevant cross-surface or system-backed continuity. For local cue concerns, read [findability](../intuitive-software-design/references/findability.md), [UI language](../intuitive-software-design/references/ui-language.md), or [experience progression](../intuitive-software-design/references/experience-progression.md) as relevant. Do not expand a small walkthrough into all companion workflows.
 
 Scale the output to the request. A short walkthrough can be a few paragraphs; use a trace table when several transitions need comparison:
 

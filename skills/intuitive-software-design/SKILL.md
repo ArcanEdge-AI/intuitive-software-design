@@ -47,11 +47,12 @@ The standard controls if a companion reference appears to conflict with it.
 
 ## Select focused guidance
 
-Load only what changes the requested task; these are supporting capabilities, not seven mandatory reports:
+Load only what changes the requested task; these are supporting capabilities, not a mandatory report set:
 
 - If domain objects, relationships, lifecycle, or navigation structure are unclear, use [Product Mental Model](../product-mental-model/SKILL.md) before arranging screens.
 - If selection, comparison, approval, or configuration lacks necessary context, use [Decision-Support Design](../decision-support-design/SKILL.md).
 - If completion depends on another actor or external system, use [Multi-Role Workflow](../multi-role-workflow/SKILL.md).
+- If the task crosses devices, platforms, products, or service boundaries—or a backend behavior materially changes effort, state, trust, or recovery—use [Connected Experience Design](../connected-experience-design/SKILL.md). Do not apply it to screen-only styling or presume that data should sync.
 - For locating information/actions, read [findability](references/findability.md).
 - For action labels, status, instructions, and errors, read [UI language](references/ui-language.md).
 - For first-product-use, occasional return, or repeated expert work, read [experience progression](references/experience-progression.md).
@@ -72,6 +73,7 @@ For proposed UI elements, explain the task question, decision, action, or confir
 9. Do not penalize appropriate professional density, domain terminology, or expert shortcuts. Judge whether the intended user can recognize structure, predict behavior, and work efficiently.
 10. Do not equate minimal, modern, or aesthetically preferred interfaces with intuitive ones.
 11. Recommend the smallest complete correction that resolves the underlying problem, includes necessary states and recovery, and preserves effective behavior.
+12. When a promised result depends on a service, data store, or integration, distinguish the requested action, actual state, user-facing acknowledgment, and continuation or recovery. A dispatched request or optimistic update alone is not completion evidence.
 
 ## Output calibration
 

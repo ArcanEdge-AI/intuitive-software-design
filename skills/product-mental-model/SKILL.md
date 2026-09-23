@@ -16,7 +16,7 @@ Map only the objects and relationships needed for the task:
 | User concept | Relationship / ownership | Lifecycle and meaningful transitions | Where the user recognizes it | Evidence / uncertainty |
 | --- | --- | --- | --- | --- |
 
-Distinguish an object's identity from its status, its parent from its owner, and an action from a navigation destination. For example, “Approved” may be a proposal state rather than a separate object. Do not infer cardinality, ownership, or legal meaning from names alone.
+Distinguish an object's identity from its status, its parent from its owner, and an action from a navigation destination. For example, “Approved” may be a proposal state rather than a separate object. When a task crosses surfaces, establish whether the same domain object and lifecycle state are actually shared; do not infer that from a matching label or account. Do not infer cardinality, ownership, or legal meaning from names alone.
 
 Separately inspect the implemented model: routes, entities, modules, permissions, and downstream effects. Where source is available, verify important relationships and transitions against current code/tests; otherwise mark them unknown. Compare the models for:
 

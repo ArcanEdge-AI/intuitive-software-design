@@ -1,7 +1,7 @@
 {
   "name": "intuitive-software-design",
-  "version": "1.2.0",
-  "description": "A measurable standard with user-task, product-model, decision-support, multi-role, and evaluation workflows for intuitive software.",
+  "version": "1.3.0",
+  "description": "An evidence-grounded standard for intuitive interfaces, connected tasks, and reliable service-backed experiences.",
   "author": {
     "name": "ArcanEdge AI"
   },
@@ -17,7 +17,7 @@
   "interface": {
     "displayName": "Intuitive Software Design",
     "shortDescription": "Design and evaluate software users can predict.",
-    "longDescription": "Applies the Intuitive Software Design Standard through task walkthroughs, product mental models, decision support, multi-role handoffs, and UI/Flow/Feel reviews. Includes focused findability, language, and experience-progression guidance, formal audits, smallest-complete-change improvements, and a behavioral evaluation kit.",
+    "longDescription": "Applies the Intuitive Software Design Standard through task walkthroughs, product mental models, decision support, multi-role handoffs, and connected experience design. Evaluates UI, Flow, and Feel, including relevant device, platform, service, state, and recovery boundaries. Includes focused guidance, formal audits, smallest-complete-change improvements, and an 11-case behavioral evaluation kit.",
     "developerName": "ArcanEdge AI",
     "category": "Design",
     "capabilities": [
