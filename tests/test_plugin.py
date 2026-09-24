@@ -117,6 +117,20 @@ def test_skill_contract() -> None:
             "Main skill must summarize and link the standard's recovery and validation contract")
     require("Behavior Confidence from one observed success path is `NE`" in skill,
             "AUDIT guidance must keep Behavior Confidence NE without representative coverage")
+    require("UI Clarity, Flow Intuition, and Behavior Confidence—as `NE`" in skill
+            and "do not offer provisional or partial dimension percentages" in skill,
+            "AUDIT guidance must keep every product dimension NE without representative coverage")
+    require("that the evidence does not establish, even in proposed interface copy" in skill,
+            "Unestablished business rules must not be stated as fact")
+    # Eval traces showed a blanket "read the standard for every mode" was rarely followed, while a named file
+    # tied to the AUDIT mode was read every time; each mode therefore names the sections it requires.
+    for mode, anchor in {"DESIGN": "#39-design-process", "REVIEW": "#40-review-process",
+                         "AUDIT": "#38-audit-process", "IMPROVE": "#41-improve-process"}.items():
+        line = re.search(rf"(?m)^- `{mode}`: read .*$", skill)
+        require(line is not None and f"intuitive-software-design-standard.md{anchor}" in line.group(0),
+                f"{mode} guidance must link the standard section it requires: {anchor}")
+    require("for every mode, then use the relevant sections" not in skill,
+            "Blanket every-mode reading requirement returned; name sections per mode instead")
     openai = text(SKILL / "agents" / "openai.yaml")
     require("$intuitive-software-design" in openai, "Skill default prompt must name the skill")
 
@@ -134,6 +148,8 @@ def test_purpose_first_redesign_contract() -> None:
         "discussion-ready brief",
         "intuitive-software-design-standard.md#recovery-and-validation-contract",
         "check with intended users that states their goal without naming the control",
+        "that the evidence does not establish, even in proposed copy",
+        "intuitive-software-design-standard.md#39-design-process",
     )
     for token in required:
         require(token in skill, f"Purpose-first redesign contract missing: {token}")
@@ -190,6 +206,8 @@ def test_authoritative_standard() -> None:
         "The goal is not to eliminate thinking",
         "### Recovery and validation contract",
         "One observed success path is never representative",
+        "Do not present provisional, partial, or estimated dimension percentages",
+        "including in proposed interface copy",
     )
     for token in required:
         require(token in standard, f"Authoritative concept missing: {token}")
@@ -230,6 +248,9 @@ def test_scoring_contract() -> None:
             and "Behavior Confidence:   __ / 100  or NE" in scoring
             and "Representative: yes / no (if no, Behavior Confidence is NE)" in audit,
             "Behavior Confidence must be NE without representative interaction coverage")
+    require("Do not report provisional or partial dimension percentages" in scoring
+            and "do not enter provisional percentages" in audit,
+            "Product dimensions without representative coverage must not get provisional scores")
 
 
 def test_references_and_links() -> None:
@@ -334,6 +355,10 @@ def test_evaluation_kit_integrity() -> None:
     for prompt in cases:
         body = text(prompt)
         require(body.startswith("---\n") and "allowed_tools:" in body, f"Malformed eval prompt: {prompt}")
+        if re.search(r"-v\d+$", prompt.parent.name):
+            description = re.search(r"(?m)^description:\s*(.+)$", body.split("---", 2)[1])
+            require(description is not None and "not comparable" in description.group(1),
+                    f"Versioned eval case must say its scores are not comparable with earlier versions: {prompt.parent.name}")
         graders = sorted((prompt.parent / "graders").glob("*.md"))
         require(all(text(grader).startswith("---\n") for grader in graders),
                 f"Eval grader lacks frontmatter: {prompt.parent.name}")
@@ -392,6 +417,16 @@ def test_evaluation_kit_integrity() -> None:
             require(all(read_pattern.search(json.dumps({"file_path": path})) is not None for path in correct_paths)
                     and all(read_pattern.search(json.dumps({"file_path": path})) is None for path in wrong_paths),
                     f"Read indicator matches the wrong skill file: {prompt.parent.name}")
+        standard_read = text(prompt.parent / "graders" / "standard-read.md")
+        require("type: tool_used" in standard_read and "tool: Read" in standard_read and "arm: with-only" in standard_read,
+                f"Standard-read indicator must be an unscored Read check: {prompt.parent.name}")
+        standard_pattern = grader_input_match(standard_read)
+        references = f"intuitive-software-design{{0}}skills{{0}}intuitive-software-design{{0}}references{{0}}"
+        for separator in ("/", "\\"):
+            folder = references.format(separator)
+            require(standard_pattern.search(json.dumps({"file_path": folder + "intuitive-software-design-standard.md"}))
+                    and not standard_pattern.search(json.dumps({"file_path": folder + "scoring-reference.md"})),
+                    f"Standard-read indicator must match only the standard: {prompt.parent.name}")
     confidence = ROOT / "evals" / "behavior-confidence-heldout" / "graders"
     require("arm: with-only" in text(confidence / "vocabulary.md"),
             "Plugin-specific vocabulary must not inflate the baseline comparison")

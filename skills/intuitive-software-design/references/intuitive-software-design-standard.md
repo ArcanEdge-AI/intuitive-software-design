@@ -1,6 +1,6 @@
 # Intuitive Software Design Standard
 
-Version 1.3 — Normative source
+Version 1.4 — Normative source
 
 This document is the authoritative standard for the Intuitive Software Design plugin. Companion scorecards, examples, and templates operationalize it; this document controls if wording conflicts.
 
@@ -81,7 +81,7 @@ Separate:
 - **Inference:** a reasoned consequence for the intended user.
 - **Unknown:** behavior or state that evidence cannot establish.
 
-Never invent research, behavior, hidden interaction, or user success. Use `NE — Not Evaluated: Insufficient Evidence` instead of a score when the criterion cannot be judged. A screenshot may support hierarchy and label observations but usually cannot prove loading behavior, keyboard operation, recovery, or an end-to-end workflow.
+Never invent research, behavior, hidden interaction, or user success. Never state a business rule—timing, price, eligibility, entitlement, or another policy outcome—that the evidence does not establish, including in proposed interface copy; mark it as a rule to confirm. Use `NE — Not Evaluated: Insufficient Evidence` instead of a score when the criterion cannot be judged. A screenshot may support hierarchy and label observations but usually cannot prove loading behavior, keyboard operation, recovery, or an end-to-end workflow.
 
 ---
 
@@ -850,7 +850,7 @@ Summarize three dimensions on a 0–100 scale only when evidence is broad enough
 - **Flow Intuition:** mean of evaluated workflow-criterion scores across representative priority workflows, normalized the same way.
 - **Behavior Confidence:** score four interaction-level criteria—outcome predictability, state feedback, cross-context consistency, and failure recovery—across representative observed interactions. Use the 0–4 anchors in the [scoring reference](scoring-reference.md), exclude `NE`, report criterion and interaction coverage, and normalize the mean by `score / 4 × 100`. Do not reuse UI or Flow criterion scores as these inputs.
 
-Report a dimension as `NE` when its coverage is not representative, even when some of its criteria can be scored; show those criterion scores and the missing coverage instead. Behavior Confidence coverage is representative only when the observed interactions include the task's consequential interactions and every applicable interaction criterion has evidence: failure recovery wherever the action can fail, and cross-context consistency wherever the action recurs in another context, device, role, or condition. One observed success path is never representative.
+Report a dimension as `NE` when its coverage is not representative, even when some of its criteria can be scored; show those criterion scores and the missing coverage instead. Do not present provisional, partial, or estimated dimension percentages; a single screen's or workflow's percentage is not a product dimension. Behavior Confidence coverage is representative only when the observed interactions include the task's consequential interactions and every applicable interaction criterion has evidence: failure recovery wherever the action can fail, and cross-context consistency wherever the action recurs in another context, device, role, or condition. One observed success path is never representative.
 
 The default overall score is the unweighted mean of the three dimensions only when all three are evaluated. If product risk justifies weights, define them before scoring and explain them. Do not manufacture missing dimensions or silently treat `NE` as zero.
 
@@ -1098,6 +1098,7 @@ The standard must not be used to:
 - prescribe universal synchronization, identical cross-platform interfaces, or unnecessary background work without a task-grounded need;
 - treat a marketing promise, dispatched request, or optimistic update as proof of a completed user outcome;
 - claim an inaccessible experience is fully intuitive;
+- present an unconfirmed business rule or policy outcome as fact, including in proposed interface copy;
 - remove necessary risk controls in the name of fewer steps.
 
 ## 45. Quality-control checklist

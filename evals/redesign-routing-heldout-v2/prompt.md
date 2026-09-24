@@ -1,4 +1,5 @@
 ---
+description: Version 2 of redesign-routing-heldout. Clarifies the analytics-evidence grader so a measurable hypothesis passes but a causal claim or guaranteed result does not. Scores are not comparable with version 1 runs.
 max_turns: 15
 allowed_tools: [Read, Glob, Grep, Skill]
 ---

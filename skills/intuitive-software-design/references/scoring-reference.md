@@ -411,7 +411,7 @@ Score each criterion for representative observed interactions using the universa
 
 # Product assessment
 
-Use product scoring only with representative coverage. Report any dimension without it as `NE`, and show its criterion scores and coverage gaps instead.
+Use product scoring only with representative coverage. Report any dimension without it as `NE`, and show its criterion scores and coverage gaps instead. Do not report provisional or partial dimension percentages, and do not label a single screen's or workflow's percentage as UI Clarity or Flow Intuition.
 
 | Dimension | Inputs | Normalization |
 | --- | --- | --- |

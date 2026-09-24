@@ -114,7 +114,7 @@ Workflow percentage: __ / 100 or NE
 
 ## Product assessment
 
-Use only with representative coverage.
+Use only with representative coverage. Enter `NE` for any dimension without it; do not enter provisional percentages. Screen and workflow percentages belong in their scorecards above.
 
 For Behavior Confidence, record separate interaction-level outcome predictability, state feedback, cross-context consistency, and failure recovery evidence as defined in the scoring reference. Mark unobserved inputs `NE`; do not reuse UI or Flow scores. Enter the Behavior Confidence dimension as `NE` unless interaction coverage is representative, as the standard defines; one observed success path is not.
 

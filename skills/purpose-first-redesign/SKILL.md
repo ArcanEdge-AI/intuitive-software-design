@@ -12,7 +12,7 @@ The objective is to design around the user's job, not around the current compone
 
 ## Required foundation
 
-Read the foundation, UI/Flow/Feel model, Intuitive Software Loop, design principles, design process, and guardrails in [the Intuitive Software Design Standard](../intuitive-software-design/references/intuitive-software-design-standard.md). Read [the examples](../intuitive-software-design/references/examples.md) when they help distinguish task structure from visual treatment. Apply the standard's [recovery and validation contract](../intuitive-software-design/references/intuitive-software-design-standard.md#recovery-and-validation-contract) to the proposed experience; the brief's states and validation items below summarize it, and the standard controls.
+Before drafting, read the standard's [design process](../intuitive-software-design/references/intuitive-software-design-standard.md#39-design-process) and [recovery and validation contract](../intuitive-software-design/references/intuitive-software-design-standard.md#recovery-and-validation-contract); they are this workflow's required reading. Apply the contract to the proposed experience: the brief's states and validation items below summarize it, and [the Intuitive Software Design Standard](../intuitive-software-design/references/intuitive-software-design-standard.md) controls if they differ. Read [the examples](../intuitive-software-design/references/examples.md) when they help distinguish task structure from visual treatment, and consult the rest of the standard when a question is not settled here.
 
 This is a `DESIGN` workflow informed by evidence from an existing product. Existing behavior is observable evidence; the proposed redesign remains a design hypothesis until validated with intended users.
 
@@ -102,7 +102,7 @@ Define:
 - what should remain visible versus progressively disclosed;
 - measurable acceptance criteria.
 
-Creative freedom does not waive evidence discipline. Novelty must reduce operating effort or improve task confidence.
+Creative freedom does not waive evidence discipline. Novelty must reduce operating effort or improve task confidence. Do not state a business rule—timing, price, eligibility, entitlement, or another policy outcome—that the evidence does not establish, even in proposed copy; use a placeholder and list it for confirmation.
 
 For consequential choices, use [Decision-Support Design](../decision-support-design/SKILL.md). Load [findability](../intuitive-software-design/references/findability.md), [UI language](../intuitive-software-design/references/ui-language.md), or [experience progression](../intuitive-software-design/references/experience-progression.md) only when those concerns affect this redesign.
 
@@ -117,7 +117,7 @@ Return a discussion-ready brief containing:
 5. **Key decisions and tradeoffs** — choices that materially affect the product.
 6. **States and recovery** — for each consequential action: the pending, success, failure, and partial states that apply; failure that keeps entered work and choices with a clear way to continue or try again; the branches the evidence names, such as eligibility windows; and a confirmation of the actual resulting state that states only what the evidence establishes.
 7. **Validation** — a functional check of the resulting state and a check with intended users that states their goal without naming the control, plus the observable result that would show the redesign works. Do not invent targets or findings; lagging signals such as support volume only supplement these checks.
-8. **Discussion prompt** — the smallest set of decisions the user should confirm.
+8. **Discussion prompt** — the smallest set of decisions the user should confirm, including every business rule the proposed experience depends on that the evidence does not establish.
 
 Do not edit source, generate implementation files, or launch a build during this discovery/design pass unless the user explicitly asks for implementation in the same request.
 
@@ -132,4 +132,5 @@ Before returning, verify that:
 - the current layout has not silently constrained the proposal;
 - necessary risk controls and recovery remain intact;
 - states, recovery, and validation meet the recovery and validation contract;
+- proposed copy states no business rule the evidence does not establish;
 - the result is specific enough to discuss and later implement.
