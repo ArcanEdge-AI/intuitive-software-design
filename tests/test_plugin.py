@@ -32,6 +32,30 @@ def grader_input_match(body: str) -> re.Pattern[str]:
     return re.compile(match.group(1))
 
 
+# Grader keys documented for `claude plugin eval`; an unknown key is ignored at run time, so a typo would
+# silently change what a paid run measures.
+GRADER_KEYS = {
+    "regex": {"pattern", "flags", "match", "target"},
+    "tool_used": {"tool", "input_match", "min", "max"},
+    "tool_order": {"before", "after"},
+    "file_exists": {"path", "exists"},
+    "llm": {"criteria", "focus"},
+    "baseline": {"baseline_file", "criteria"},
+}
+
+
+def grader_frontmatter(body: str) -> dict[str, str]:
+    match = re.match(r"---\n(.*?)\n---\n", body, re.DOTALL)
+    require(match is not None, "Eval grader lacks frontmatter")
+    return dict(re.findall(r"(?m)^([a-z_]+):\s*(.*)$", match.group(1)))
+
+
+def grader_is_scored(fields: dict[str, str]) -> bool:
+    """Scored in a two-arm run: not an unscored plugin-fired indicator (see the plugin-evals docs)."""
+    skill_indicator = fields.get("type") == "tool_used" and fields.get("tool") == "Skill"
+    return fields.get("arm") != "with-only" and (not skill_indicator or fields.get("arm") == "both")
+
+
 def test_manifest() -> None:
     manifest_path = ROOT / ".codex-plugin" / "plugin.json"
     manifest = json.loads(text(manifest_path))
@@ -86,6 +110,13 @@ def test_skill_contract() -> None:
     require("../purpose-first-redesign/SKILL.md" in skill and "broad creative freedom" in skill,
             "Broad redesign route is missing")
     require("Loop Break:" in skill and "Validation:" in skill, "Finding shape lacks loop or validation")
+    # Eval transcripts showed routed runs acting on SKILL.md alone, so the contract summary must live here
+    # and point back to the standard, which controls.
+    require("## Recovery and validation contract" in skill
+            and "references/intuitive-software-design-standard.md#recovery-and-validation-contract" in skill,
+            "Main skill must summarize and link the standard's recovery and validation contract")
+    require("Behavior Confidence from one observed success path is `NE`" in skill,
+            "AUDIT guidance must keep Behavior Confidence NE without representative coverage")
     openai = text(SKILL / "agents" / "openai.yaml")
     require("$intuitive-software-design" in openai, "Skill default prompt must name the skill")
 
@@ -101,6 +132,8 @@ def test_purpose_first_redesign_contract() -> None:
         "Treat the current layout as evidence",
         "Do not edit source",
         "discussion-ready brief",
+        "intuitive-software-design-standard.md#recovery-and-validation-contract",
+        "check with intended users that states their goal without naming the control",
     )
     for token in required:
         require(token in skill, f"Purpose-first redesign contract missing: {token}")
@@ -155,6 +188,8 @@ def test_authoritative_standard() -> None:
         "Intuition Critical Failures",
         "Minimal UI does not automatically mean intuitive UI",
         "The goal is not to eliminate thinking",
+        "### Recovery and validation contract",
+        "One observed success path is never representative",
     )
     for token in required:
         require(token in standard, f"Authoritative concept missing: {token}")
@@ -191,6 +226,10 @@ def test_scoring_contract() -> None:
     require("| Expected outcome and affected object | Observed action, result, and state |" in audit
             and "Behavior Confidence coverage:" in audit,
             "Audit template lacks interaction-level scoring evidence")
+    require("One observed success path is never representative" in scoring
+            and "Behavior Confidence:   __ / 100  or NE" in scoring
+            and "Representative: yes / no (if no, Behavior Confidence is NE)" in audit,
+            "Behavior Confidence must be NE without representative interaction coverage")
 
 
 def test_references_and_links() -> None:
@@ -207,12 +246,20 @@ def test_references_and_links() -> None:
     for markdown in (ROOT / "skills").rglob("*.md"):
         body = text(markdown)
         for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", body):
-            if target.startswith(("http://", "https://", "#")):
+            if target.startswith(("http://", "https://")):
                 continue
-            relative = target.split("#", 1)[0]
-            if not relative:
-                continue
-            require((markdown.parent / relative).resolve().is_file(), f"Broken link in {markdown.name}: {target}")
+            relative, _, fragment = target.partition("#")
+            linked = (markdown.parent / relative).resolve() if relative else markdown
+            require(linked.is_file(), f"Broken link in {markdown.name}: {target}")
+            if fragment:
+                require(fragment in heading_slugs(text(linked)), f"Broken anchor in {markdown.name}: {target}")
+
+
+def heading_slugs(markdown: str) -> set[str]:
+    """GitHub-style heading anchors, ignoring headings inside fenced code blocks."""
+    prose = re.sub(r"(?ms)^```.*?^```", "", markdown)
+    return {re.sub(r"[^\w\- ]", "", heading.lower()).replace(" ", "-")
+            for heading in re.findall(r"(?m)^#{1,6}\s+(.+?)\s*$", prose)}
 
 
 def test_scenarios() -> None:
@@ -287,10 +334,31 @@ def test_evaluation_kit_integrity() -> None:
     for prompt in cases:
         body = text(prompt)
         require(body.startswith("---\n") and "allowed_tools:" in body, f"Malformed eval prompt: {prompt}")
-        graders = list((prompt.parent / "graders").glob("*.md"))
-        require(len(graders) >= 2, f"Eval case needs outcome and routing graders: {prompt.parent.name}")
+        graders = sorted((prompt.parent / "graders").glob("*.md"))
         require(all(text(grader).startswith("---\n") for grader in graders),
                 f"Eval grader lacks frontmatter: {prompt.parent.name}")
+        scored = 0
+        for grader in graders:
+            body = text(grader)
+            fields = grader_frontmatter(body)
+            kind = fields.get("type", "")
+            require(kind in GRADER_KEYS, f"Unknown grader type in {prompt.parent.name}/{grader.name}")
+            unknown = set(fields) - {"type", "weight", "arm"} - GRADER_KEYS[kind]
+            require(not unknown, f"Undocumented grader keys {sorted(unknown)} in {prompt.parent.name}/{grader.name}")
+            require(fields.get("arm", "with-only") in {"with-only", "both"},
+                    f"Unknown grader arm in {prompt.parent.name}/{grader.name}")
+            if kind == "regex":
+                pattern = re.match(r"'(.*)'$", fields.get("pattern", ""))
+                require(pattern is not None, f"Regex grader needs a single-quoted pattern: {grader.name}")
+                re.compile(pattern.group(1), re.IGNORECASE if "i" in fields.get("flags", "") else 0)
+            if grader_is_scored(fields):
+                scored += 1
+                if kind == "llm":
+                    require("PASS if" in body and "FAIL if" in body,
+                            f"Scored rubric needs explicit PASS and FAIL conditions: {prompt.parent.name}/{grader.name}")
+        # One conjunctive rubric can only score a run 0 or 1, which hides partial improvements; a case still
+        # passes only when every scored criterion passes.
+        require(scored >= 3, f"Eval case needs at least three independently scored criteria: {prompt.parent.name}")
         invoked = text(prompt.parent / "graders" / "skill-invoked.md")
         read = text(prompt.parent / "graders" / "skill-read.md")
         invoke_pattern = grader_input_match(invoked)

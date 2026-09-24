@@ -40,7 +40,7 @@ The authoritative source is [references/intuitive-software-design-standard.md](r
 
 - `DESIGN`: read the design principles and [references/examples.md](references/examples.md). Define the user's loop, states, decisions, feedback, recovery, and measurable acceptance before proposing structure.
 - `REVIEW`: inspect the supplied evidence across UI, Flow, and Feel where observable. Use the friction taxonomy, Prediction Gap, Decision Density, Loop break, and critical-failure checks. Use examples only when comparison adds clarity.
-- `AUDIT`: also read [references/scoring-reference.md](references/scoring-reference.md) and use [references/audit-template.md](references/audit-template.md). Do not calculate a screen, workflow, or product score from unevaluated criteria.
+- `AUDIT`: also read [references/scoring-reference.md](references/scoring-reference.md) and use [references/audit-template.md](references/audit-template.md). Do not calculate a screen, workflow, or product score from unevaluated criteria. Report a product dimension as `NE` unless its coverage is representative; Behavior Confidence from one observed success path is `NE`, even when individual interaction criteria can be scored.
 - `IMPROVE`: trace each recommendation to evidence and an underlying friction source. Prefer a ranked smallest-complete-change plan. Redesign only when smaller changes cannot solve the diagnosed problem.
 - For an AI-agent or code-review deliverable, use [references/ai-review-template.md](references/ai-review-template.md).
 
@@ -77,9 +77,20 @@ For proposed UI elements, explain the task question, decision, action, or confir
 11. Recommend the smallest complete correction that resolves the underlying problem, includes necessary states and recovery, and preserves effective behavior.
 12. When a promised result depends on a service, data store, or integration, distinguish the requested action, actual state, user-facing acknowledgment, and continuation or recovery. A dispatched request or optimistic update alone is not completion evidence.
 
+## Recovery and validation contract
+
+The standard's [recovery and validation contract](references/intuitive-software-design-standard.md#recovery-and-validation-contract) controls. Read it with the other sections of the standard required for every mode; this summary keeps its requirements in view while you work and does not replace reading it. Apply the contract to every change you recommend or design, in every mode:
+
+- For each consequential action you introduce or alter, define its pending, success, failure, and partial states, and prevent duplicate activation while work is pending.
+- Show known constraints before the person commits; when an action is still rejected, explain the cause and the next step.
+- On failure or interruption, keep the person's valid work and choices and give a clear way to continue or try again.
+- Confirm the actual resulting state—what changed, and for which object—in a form the person can find again. State only outcomes the evidence establishes.
+- Cover the branches the evidence names, such as eligibility windows, roles, or an object changed elsewhere before the action completed.
+- Validate each important recommendation with a functional check of the resulting state and, when people must find, understand, or trust something, a check with intended users that states the goal without naming the control. Name the observable result that would show success. Support volume and other lagging signals can supplement that check but not replace it.
+
 ## Output calibration
 
-For quick design help, answer directly with the intended user, key decision, proposed flow, essential states, and important tradeoffs.
+For quick design help, answer directly with the intended user, key decision, proposed flow, essential states and recovery, important tradeoffs, and how to validate the design.
 
 For reviews, lead with the most consequential diagnosis and cite specific evidence. Use concise findings unless the user requests a formal report. Do not use the audit template or assign numeric scores unless the user asks to score or the requested review is explicitly formal; omit the Score field and use qualitative evidence boundaries instead.
 
@@ -102,7 +113,7 @@ Validation: [test or evidence that would demonstrate improvement]
 
 The full block, including `Score`, is for `AUDIT`, explicitly requested scoring, or an explicitly formal review. In an ordinary `REVIEW`, omit `Score` rather than manufacturing formality.
 
-For improvements, connect each change as `evidence -> friction source -> correction -> expected behavior`. Do not produce a screen redesign by default.
+For improvements, connect each change as `evidence -> friction source -> correction with its states and recovery -> expected behavior -> validation`. Do not produce a screen redesign by default.
 
 ## Completion check
 
@@ -114,4 +125,5 @@ Before returning:
 - scores use only the 0-4 behavioral rubrics and show `NE` where needed;
 - critical failures are separate from averages;
 - recommendations preserve what works and solve the entire diagnosed state or workflow gap;
+- each recommended change meets the recovery and validation contract: failure and recovery states, a truthful confirmation, and validation with an observable result;
 - the answer is specific enough that a designer, developer, PM, QA reviewer, or AI agent can act on it.

@@ -116,13 +116,13 @@ Workflow percentage: __ / 100 or NE
 
 Use only with representative coverage.
 
-For Behavior Confidence, record separate interaction-level outcome predictability, state feedback, cross-context consistency, and failure recovery evidence as defined in the scoring reference. Mark unobserved inputs `NE`; do not reuse UI or Flow scores.
+For Behavior Confidence, record separate interaction-level outcome predictability, state feedback, cross-context consistency, and failure recovery evidence as defined in the scoring reference. Mark unobserved inputs `NE`; do not reuse UI or Flow scores. Enter the Behavior Confidence dimension as `NE` unless interaction coverage is representative, as the standard defines; one observed success path is not.
 
 | Expected outcome and affected object | Observed action, result, and state | Outcome predictability 0–4 or NE | State feedback 0–4 or NE | Cross-context consistency 0–4 or NE | Failure recovery 0–4 or NE | Evidence and exclusions |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
 | | | | | | | |
 
-Behavior Confidence coverage: __ evaluated criteria / __ applicable criteria across __ representative interactions. Report states and contexts not observed.
+Behavior Confidence coverage: __ evaluated criteria / __ applicable criteria across __ observed interactions. Representative: yes / no (if no, Behavior Confidence is NE). Report states and contexts not observed.
 
 | Dimension | Score / 100 or NE | Coverage | Rationale |
 | --- | ---: | --- | --- |
@@ -196,3 +196,4 @@ Behavior Confidence coverage: __ evaluated criteria / __ applicable criteria acr
 - [ ] Recommendations fix underlying friction with the smallest complete change.
 - [ ] Accessibility evidence and gaps are stated.
 - [ ] Every important recommendation has observable validation.
+- [ ] Recommended changes meet the standard's recovery and validation contract.

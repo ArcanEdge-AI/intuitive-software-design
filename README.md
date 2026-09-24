@@ -105,7 +105,7 @@ The plugin treats synchronization as a product decision, not a default. It asks 
 
 ## Behavioral evaluation
 
-The evaluation kit contains eleven fictional scenario packets, a separate assessor rubric, and a comparison record. Cases 01–06 are example-aligned regression cases; they must not be presented as independent evidence of generalization. Cases 07–11 broaden coverage, and the separate [held-out eval cases](evals/) test new requests without putting graders in the agent prompt.
+The evaluation kit contains eleven fictional scenario packets, a separate assessor rubric, and a comparison record. Cases 01–06 are example-aligned regression cases; they must not be presented as independent evidence of generalization. Cases 07–11 broaden coverage, and the separate [held-out eval cases](evals/) test new requests without putting graders in the agent prompt. Each held-out case supplies raw product evidence rather than stating the constraints it is graded on, and scores several independent criteria so the baseline comparison can show partial differences; a case passes only when every scored criterion passes.
 
 These fixtures support repeatable review; they do not prove that a model evaluation or human usability study has been run. Walkthrough predictions remain hypotheses until checked against the real product and intended-user evidence. Record not-run cases honestly and compare versions with matching inputs and settings where practical.
 

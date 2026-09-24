@@ -12,7 +12,7 @@ The objective is to design around the user's job, not around the current compone
 
 ## Required foundation
 
-Read the foundation, UI/Flow/Feel model, Intuitive Software Loop, design principles, design process, and guardrails in [the Intuitive Software Design Standard](../intuitive-software-design/references/intuitive-software-design-standard.md). Read [the examples](../intuitive-software-design/references/examples.md) when they help distinguish task structure from visual treatment.
+Read the foundation, UI/Flow/Feel model, Intuitive Software Loop, design principles, design process, and guardrails in [the Intuitive Software Design Standard](../intuitive-software-design/references/intuitive-software-design-standard.md). Read [the examples](../intuitive-software-design/references/examples.md) when they help distinguish task structure from visual treatment. Apply the standard's [recovery and validation contract](../intuitive-software-design/references/intuitive-software-design-standard.md#recovery-and-validation-contract) to the proposed experience; the brief's states and validation items below summarize it, and the standard controls.
 
 This is a `DESIGN` workflow informed by evidence from an existing product. Existing behavior is observable evidence; the proposed redesign remains a design hypothesis until validated with intended users.
 
@@ -115,8 +115,8 @@ Return a discussion-ready brief containing:
 3. **Recommended experience** — how the page should work from arrival through continuation.
 4. **Screen structure** — a concise text wireframe or flow only when it clarifies relationships.
 5. **Key decisions and tradeoffs** — choices that materially affect the product.
-6. **States and recovery** — the complete interaction contract.
-7. **Validation** — observable evidence that would show the redesign works.
+6. **States and recovery** — for each consequential action: the pending, success, failure, and partial states that apply; failure that keeps entered work and choices with a clear way to continue or try again; the branches the evidence names, such as eligibility windows; and a confirmation of the actual resulting state that states only what the evidence establishes.
+7. **Validation** — a functional check of the resulting state and a check with intended users that states their goal without naming the control, plus the observable result that would show the redesign works. Do not invent targets or findings; lagging signals such as support volume only supplement these checks.
 8. **Discussion prompt** — the smallest set of decisions the user should confirm.
 
 Do not edit source, generate implementation files, or launch a build during this discovery/design pass unless the user explicitly asks for implementation in the same request.
@@ -131,4 +131,5 @@ Before returning, verify that:
 - observations, inferences, and design hypotheses are distinguishable;
 - the current layout has not silently constrained the proposal;
 - necessary risk controls and recovery remain intact;
+- states, recovery, and validation meet the recovery and validation contract;
 - the result is specific enough to discuss and later implement.

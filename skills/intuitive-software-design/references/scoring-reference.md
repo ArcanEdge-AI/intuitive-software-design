@@ -341,7 +341,7 @@ Show criterion scores, evidence rationales, evaluated count, `NE` criteria, and 
 
 # Behavior Confidence interaction scorecard
 
-Score each criterion for representative observed interactions using the universal 0–4 scale. Record `NE` when the required action or state has not been observed. These scores describe interaction behavior, not the screen or workflow scores above.
+Score each criterion for representative observed interactions using the universal 0–4 scale. Record `NE` when the required action or state has not been observed. These scores describe interaction behavior, not the screen or workflow scores above. Criterion scores can be reported from any observed interaction, but the Behavior Confidence dimension is `NE` unless interaction coverage is representative, as the standard's product-level assessment defines. One observed success path is never representative.
 
 ## Outcome predictability
 
@@ -411,7 +411,7 @@ Score each criterion for representative observed interactions using the universa
 
 # Product assessment
 
-Use product scoring only with representative coverage.
+Use product scoring only with representative coverage. Report any dimension without it as `NE`, and show its criterion scores and coverage gaps instead.
 
 | Dimension | Inputs | Normalization |
 | --- | --- | --- |
@@ -419,16 +419,16 @@ Use product scoring only with representative coverage.
 | Flow Intuition | Evaluated workflow criteria across priority workflows | mean score / 4 × 100 |
 | Behavior Confidence | Four separately scored interaction criteria across representative observed interactions | mean evaluated interaction-criterion score / 4 × 100 |
 
-For each representative interaction, record the user's reasonable expectation, observed action and result, and scores using the four interaction rubrics above with evidence rationales. Mark a criterion `NE` when its behavior was not observed; a screenshot alone cannot establish pending results or recovery. Calculate the mean over evaluated interaction-criterion scores only, and report both evaluated/possible criteria and which interaction states were exercised. Do not copy screen or workflow scores into Behavior Confidence. Keep Critical Failures separate.
+For each representative interaction, record the user's reasonable expectation, observed action and result, and scores using the four interaction rubrics above with evidence rationales. Mark a criterion `NE` when its behavior was not observed; a screenshot alone cannot establish pending results or recovery. Report Behavior Confidence only when interaction coverage is representative: the observed interactions include the task's consequential interactions, and every applicable criterion has evidence, including failure recovery wherever the action can fail and cross-context consistency wherever it recurs in another context. Otherwise report the dimension as `NE`. When it is reported, calculate the mean over evaluated interaction-criterion scores only, and report both evaluated/possible criteria and which interaction states were exercised. Do not copy screen or workflow scores into Behavior Confidence. Keep Critical Failures separate.
 
 Use an unweighted mean only when all three dimensions are evaluated. Define any risk-based weights before scoring. Report roles, tasks, screens, states, devices, accessibility methods, and exclusions.
 
 Required product summary:
 
 ```text
-UI Clarity:            __ / 100  (coverage: __)
-Flow Intuition:        __ / 100  (coverage: __)
-Behavior Confidence:   __ / 100  (coverage: __)
+UI Clarity:            __ / 100  or NE  (coverage: __)
+Flow Intuition:        __ / 100  or NE  (coverage: __)
+Behavior Confidence:   __ / 100  or NE  (coverage: __; representative: yes / no)
 Overall:               __ / 100  or NE
 
 Primary Weakness:
