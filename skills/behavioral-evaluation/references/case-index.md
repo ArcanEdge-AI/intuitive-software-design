@@ -2,6 +2,8 @@
 
 Provide the selected fixture packet to the execution task. Keep the separate assessor rubric out of that task. All fixtures are fictional; no live accounts or browser actions are needed.
 
+Cases 01–06 closely follow worked examples and serve as regression checks, not held-out evidence. Do not claim they demonstrate generalization or a with-plugin advantage. Cases 07–11 add different failure modes; use the separate repository-level `evals/` cases for held-out comparisons and report the exact source revision, model settings, runs, and baseline. No model evaluation has been run merely because these files exist.
+
 | Case | Focus | Raw packet |
 | --- | --- | --- |
 | 01 | Product concepts and alternate role needs | [Proposal structure](fixtures/01-product-model.md) |

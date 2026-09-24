@@ -817,7 +817,7 @@ Evaluate an individual screen with:
 | Action clarity | Can they identify available actions and the primary action? |
 | Control recognition | Can they recognize how controls operate and what they affect? |
 | Information clarity | Can they interpret the information needed for the task? |
-| Feedback/state visibility | Can they see current, pending, success, failure, and changed state where relevant? |
+| Feedback and state visibility | Can they see current, pending, success, failure, and changed state where relevant? |
 | Cognitive load | Is avoidable interpretation, recall, or decision effort controlled? |
 | Consistency | Do patterns transfer from comparable parts of the product and relevant conventions? |
 
@@ -848,7 +848,7 @@ Summarize three dimensions on a 0–100 scale only when evidence is broad enough
 
 - **UI Clarity:** mean of evaluated screen-criterion scores across a representative screen set, normalized by `score / 4 × 100`.
 - **Flow Intuition:** mean of evaluated workflow-criterion scores across representative priority workflows, normalized the same way.
-- **Behavior Confidence:** mean of evaluated predictability, feedback/state, consistency, and recovery evidence across representative interactions, normalized the same way.
+- **Behavior Confidence:** score four interaction-level criteria—outcome predictability, state feedback, cross-context consistency, and failure recovery—across representative observed interactions. Use the 0–4 anchors in the [scoring reference](scoring-reference.md), exclude `NE`, report criterion and interaction coverage, and normalize the mean by `score / 4 × 100`. Do not reuse UI or Flow criterion scores as these inputs.
 
 The default overall score is the unweighted mean of the three dimensions only when all three are evaluated. If product risk justifies weights, define them before scoring and explain them. Do not manufacture missing dimensions or silently treat `NE` as zero.
 
@@ -921,6 +921,7 @@ Severity: Critical | High | Medium | Low
 Score: [criterion and 0-4, or NE]
 Recommendation: [smallest complete corrective change]
 Expected Outcome: [observable improvement]
+Validation: [test or evidence that would demonstrate improvement]
 ```
 
 Use the full shape for formal reviews and audits. Quick advice can be shorter, but it must remain specific.

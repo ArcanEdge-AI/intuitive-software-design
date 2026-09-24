@@ -1,4 +1,4 @@
 interface:
   display_name: "Purpose-First Redesign"
   short_description: "Map a page's purpose, then rethink how it should work."
-  default_prompt: "Use $purpose-first-redesign to map this page with GitNexus and propose how it should work before implementation."
+  default_prompt: "Use $purpose-first-redesign to map this page's purpose and propose how it should work before implementation."

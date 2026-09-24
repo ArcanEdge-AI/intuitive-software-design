@@ -29,9 +29,11 @@ def text(path: Path) -> str:
 def test_manifest() -> None:
     manifest_path = ROOT / ".codex-plugin" / "plugin.json"
     manifest = json.loads(text(manifest_path))
-    require(manifest["name"] == ROOT.name == "intuitive-software-design", "Plugin name/folder mismatch")
+    claude = json.loads(text(ROOT / ".claude-plugin" / "plugin.json"))
+    require(manifest["name"] == claude["name"] == "intuitive-software-design", "Plugin names disagree")
     require(re.fullmatch(r"\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?", manifest["version"]) is not None, "Version is not semver")
-    require(manifest["version"].split("+", 1)[0] == "1.3.0", "Manifest version was not advanced for the connected-experience capability")
+    require(manifest["version"] == claude["version"], "Codex and Claude versions disagree")
+    require(f"version-{manifest['version']}-" in text(ROOT / "README.md"), "README version badge disagrees")
     require(manifest.get("skills") == "./skills/", "Manifest must expose ./skills/")
     require("mcpServers" not in manifest and "apps" not in manifest and "hooks" not in manifest, "Plugin must remain self-contained")
     interface = manifest["interface"]
@@ -39,6 +41,22 @@ def test_manifest() -> None:
     prompts = interface.get("defaultPrompt", [])
     require(isinstance(prompts, list) and 1 <= len(prompts) <= 3, "defaultPrompt must contain one to three prompts")
     require(all(isinstance(prompt, str) and len(prompt) <= 128 for prompt in prompts), "A default prompt exceeds 128 characters")
+    for key in ("composerIcon", "logo"):
+        require((ROOT / interface[key]).is_file(), f"Codex {key} image is missing")
+    require("excluded" in text(ROOT / "assets" / "LICENSE").lower(), "Artwork license must state the Apache exclusion")
+    marketplace = json.loads(text(ROOT / ".claude-plugin" / "marketplace.json"))
+    require(any(entry.get("name") == manifest["name"] and entry.get("source") == "."
+                for entry in marketplace.get("plugins", [])), "Claude marketplace must expose the root plugin")
+
+
+def test_skill_frontmatter() -> None:
+    for path in (ROOT / "skills").glob("*/SKILL.md"):
+        body = text(path)
+        match = re.match(r"\A---\s*\n(.*?)\n---\s*\n", body, re.DOTALL)
+        require(match is not None, f"Missing YAML frontmatter: {path.parent.name}")
+        fields = dict(re.findall(r"^([a-z][a-z-]*):\s*(.+)$", match.group(1), re.MULTILINE))
+        require(fields.get("name") == path.parent.name, f"Wrong skill name: {path.parent.name}")
+        require(bool(fields.get("description", "").strip()), f"Missing description: {path.parent.name}")
 
 
 def test_skill_contract() -> None:
@@ -48,6 +66,9 @@ def test_skill_contract() -> None:
     require("Do not produce a screen redesign by default" in skill, "Improve guardrail is missing")
     require("assign numeric scores unless the user asks" in skill, "Review scoring guardrail is missing")
     require("They do not prove responsiveness" in skill, "Screenshot evidence guardrail is missing")
+    require("../purpose-first-redesign/SKILL.md" in skill and "broad creative freedom" in skill,
+            "Broad redesign route is missing")
+    require("Loop Break:" in skill and "Validation:" in skill, "Finding shape lacks loop or validation")
     openai = text(SKILL / "agents" / "openai.yaml")
     require("$intuitive-software-design" in openai, "Skill default prompt must name the skill")
 
@@ -125,6 +146,7 @@ def test_authoritative_standard() -> None:
 
 def test_scoring_contract() -> None:
     scoring = text(REFERENCES / "scoring-reference.md")
+    standard = text(REFERENCES / "intuitive-software-design-standard.md")
     for score in ("0 | Broken", "1 | Difficult", "2 | Understandable", "3 | Intuitive", "4 | Effortless"):
         require(score in scoring, f"Universal score missing: {score}")
     require("NE | Not Evaluated" in scoring, "Insufficient-evidence state is missing")
@@ -141,6 +163,10 @@ def test_scoring_contract() -> None:
         require(f"## {criterion}" in scoring, f"Detailed scoring rubric missing: {criterion}")
     require(scoring.count("**Warning signs:**") == 18, "Every screen/workflow criterion needs warning signs")
     require(scoring.count("**Test:**") == 18, "Every screen/workflow criterion needs a test method")
+    for criterion in ("Outcome predictability", "State feedback", "Cross-context consistency", "Failure recovery"):
+        require(criterion in scoring, f"Behavior Confidence input missing: {criterion}")
+    require("Do not copy screen or workflow scores" in scoring, "Behavior Confidence must not reuse other scores")
+    require("Do not reuse UI or Flow criterion scores" in standard, "Standard does not define distinct Behavior Confidence inputs")
 
 
 def test_references_and_links() -> None:
@@ -168,12 +194,12 @@ def test_references_and_links() -> None:
 def test_scenarios() -> None:
     expected = {
         "01-screen-review.md": ("UI", "Flow", "Feel"),
-        "02-workflow-audit.md": ("Prediction Gap", "Decision Density", "Intuitive Software Loop"),
-        "03-new-design.md": ("DESIGN", "does not yet exist"),
+        "02-workflow-audit.md": ("AUDIT", "Decision Density", "Intuitive Software Loop"),
+        "03-new-design.md": ("DESIGN", "mental model", "hypothesis"),
         "04-critical-failure.md": ("Critical Failure", "independently"),
-        "05-expert-software.md": ("domain", "density"),
+        "05-expert-software.md": ("expert", "density"),
         "06-minimal-unclear.md": ("minimal", "cognitive"),
-        "07-purpose-first-redesign.md": ("GitNexus", "current layout", "Do not implement"),
+        "07-purpose-first-redesign.md": ("GitNexus", "current layout", "stops for discussion"),
         "08-website-task-walkthrough.md": ("knowledge", "conversion"),
         "09-draft-task-walkthrough.md": ("persistence", "human"),
         "10-incomplete-walkthrough-evidence.md": ("unknown", "proposed"),
@@ -183,8 +209,11 @@ def test_scenarios() -> None:
     for name, tokens in expected.items():
         body = text(SCENARIOS / name)
         require("## Prompt" in body and "## Acceptance gates" in body, f"Malformed scenario: {name}")
+        gates = body.split("## Acceptance gates", 1)[1]
+        require(len(re.findall(r"(?m)^- .+", gates)) >= 4, f"Scenario {name} needs substantive acceptance gates")
         for token in tokens:
-            require(token.lower() in body.lower(), f"Scenario {name} lacks acceptance token: {token}")
+            require(re.search(rf"(?<!\w){re.escape(token)}(?!\w)", gates, re.IGNORECASE) is not None,
+                    f"Scenario {name} lacks acceptance gate: {token}")
 
 
 def test_no_placeholders() -> None:
@@ -227,11 +256,22 @@ def test_evaluation_kit_integrity() -> None:
         links = re.findall(r"\[[^\]]+\]\(([^)]+)\)", text(packet))
         require(not any("assessor-rubric" in target for target in links),
                 f"Raw execution packet leaks assessor instructions: {packet.name}")
+    require("Cases 01–06 closely follow worked examples" in index, "Example-aligned regression cases must be labeled")
+    cases = sorted((ROOT / "evals").glob("*/prompt.md"))
+    require(len(cases) >= 3, "Held-out eval suite needs diverse cases")
+    for prompt in cases:
+        body = text(prompt)
+        require(body.startswith("---\n") and "allowed_tools:" in body, f"Malformed eval prompt: {prompt}")
+        graders = list((prompt.parent / "graders").glob("*.md"))
+        require(len(graders) >= 2, f"Eval case needs outcome and skill-use graders: {prompt.parent.name}")
+        require(all(text(grader).startswith("---\n") for grader in graders),
+                f"Eval grader lacks frontmatter: {prompt.parent.name}")
 
 
 def main() -> None:
     tests = (
         test_manifest,
+        test_skill_frontmatter,
         test_skill_contract,
         test_purpose_first_redesign_contract,
         test_connected_experience_contract,

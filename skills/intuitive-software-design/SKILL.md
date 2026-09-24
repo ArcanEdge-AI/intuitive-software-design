@@ -54,6 +54,7 @@ Load only what changes the requested task; these are supporting capabilities, no
 - If selection, comparison, approval, or configuration lacks necessary context, use [Decision-Support Design](../decision-support-design/SKILL.md).
 - If completion depends on another actor or external system, use [Multi-Role Workflow](../multi-role-workflow/SKILL.md).
 - If the task crosses devices, platforms, products, or service boundaries—or a backend behavior materially changes effort, state, trust, or recovery—use [Connected Experience Design](../connected-experience-design/SKILL.md). Do not apply it to screen-only styling or presume that data should sync.
+- If the user explicitly grants broad creative freedom to rethink an existing page or flow, use [Purpose-First Redesign](../purpose-first-redesign/SKILL.md) to separate what must work from layout choices. Keep `IMPROVE` diagnosis-driven by default; broad redesign is not implied by a request to fix friction.
 - For locating information/actions, read [findability](references/findability.md).
 - For action labels, status, instructions, and errors, read [UI language](references/ui-language.md).
 - For first-product-use, occasional return, or repeated expert work, read [experience progression](references/experience-progression.md).
@@ -89,12 +90,14 @@ Finding: [specific problem]
 Area: UI | Flow | Feel | Cross-Cutting
 Principle: [standard principle]
 Friction Type: [taxonomy term]
+Loop Break: Orient | Recognize | Predict | Act | Confirm | Continue
 Evidence: [observable evidence]
 User Impact: [effect on intended user and task]
 Severity: Critical | High | Medium | Low
 Score: [criterion and 0-4, or NE]
 Recommendation: [smallest complete corrective change]
 Expected Outcome: [observable improvement]
+Validation: [test or evidence that would demonstrate improvement]
 ```
 
 The full block, including `Score`, is for `AUDIT`, explicitly requested scoring, or an explicitly formal review. In an ordinary `REVIEW`, omit `Score` rather than manufacturing formality.

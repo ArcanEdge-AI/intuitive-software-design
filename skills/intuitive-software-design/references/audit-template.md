@@ -81,7 +81,7 @@ Use only for an evaluated screen. Enter `NE` when evidence is insufficient.
 | Action clarity | | |
 | Control recognition | | |
 | Information clarity | | |
-| Feedback/state visibility | | |
+| Feedback and state visibility | | |
 | Cognitive load | | |
 | Consistency | | |
 
@@ -115,6 +115,8 @@ Workflow percentage: __ / 100 or NE
 ## Product assessment
 
 Use only with representative coverage.
+
+For Behavior Confidence, record separate interaction-level outcome predictability, state feedback, cross-context consistency, and failure recovery evidence as defined in the scoring reference. Mark unobserved inputs `NE`; do not reuse UI or Flow scores.
 
 | Dimension | Score / 100 or NE | Coverage | Rationale |
 | --- | ---: | --- | --- |
