@@ -1,6 +1,6 @@
 # Intuitive Software Design Standard
 
-Version 1.1 — Normative source
+Version 1.2 — Normative source
 
 This document is the authoritative standard for the Intuitive Software Design plugin. Companion scorecards, examples, and templates operationalize it; this document controls if wording conflicts.
 

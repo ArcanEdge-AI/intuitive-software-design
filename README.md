@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/version-1.3.1-9F7AEA?style=for-the-badge" alt="Version 1.3.1" />
   <img src="https://img.shields.io/badge/skills-8-2563EB?style=for-the-badge" alt="Eight focused skills" />
   <img src="https://img.shields.io/badge/harness-Claude%20Code%20%7C%20Codex-111827?style=for-the-badge" alt="Claude Code and Codex plugin formats" />
-  <img src="https://img.shields.io/badge/skills-Apache--2.0-9F7AEA?style=for-the-badge" alt="Skills under Apache License 2.0" />
+  <img src="https://img.shields.io/badge/license-Apache--2.0%20%2B%20reserved%20artwork-9F7AEA?style=for-the-badge" alt="Apache-licensed skills and reserved artwork" />
 </p>
 
 <p align="center">
@@ -109,7 +109,7 @@ The evaluation kit contains eleven fictional scenario packets, a separate assess
 
 These fixtures support repeatable review; they do not prove that a model evaluation or human usability study has been run. Walkthrough predictions remain hypotheses until checked against the real product and intended-user evidence. Record not-run cases honestly and compare versions with matching inputs and settings where practical.
 
-Claude Code v2.1.269 or later can run the `evals/` suite with `claude plugin eval . --no-publish --model <approved-model> --max-cost-usd <approved-budget>`. It runs model calls and a no-plugin baseline, so choose the model, number of runs, and budget deliberately. The automated CI checks package structure and manifests only; it does not spend on behavioral evals.
+Claude Code v2.1.269 or later can run the `evals/` suite with `claude plugin eval . --no-publish --model <approved-model> --judge-model <approved-judge-model> --runs <approved-runs> --max-cost-usd <approved-budget>`. It runs model calls and a no-plugin baseline, so choose the models, number of runs, and budget deliberately. If the run is noninteractive and the plugin is trusted, add `--trust-plugin`. The routing and vocabulary graders are unscored indicators in two-arm comparisons; interpret any miss alongside the trace. The automated CI checks package structure and manifests only; it does not spend on behavioral evals.
 
 ## Validate the package
 
@@ -143,5 +143,7 @@ Intuitive Software Design is published by [ArcanEdge](https://www.arcanedge.ai/)
 ## License
 
 The plugin instructions, code, and documentation are licensed under the [Apache License 2.0](LICENSE). You may use, modify, and distribute them, including in commercial products, subject to the license terms. The ArcanEdge artwork in `assets/logo.png` is excluded and governed by [its separate license](assets/LICENSE).
+
+For a modified fork, remove the reserved logo file, the `composerIcon` and `logo` paths in the Codex manifest, and the README header image unless you have separate permission to use the artwork. The plugin tests accept that unbranded configuration.
 
 If you distribute this project or a derivative based on it, retain the license and the ArcanEdge attribution notice in [NOTICE](NOTICE), as required by the license. Each main skill file also carries a short source notice so attribution travels with individually reused skills. You do not have to publish private changes or contribute improvements back. The license does not grant permission to use ArcanEdge names or marks as your own branding.

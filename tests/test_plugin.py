@@ -41,11 +41,22 @@ def test_manifest() -> None:
     prompts = interface.get("defaultPrompt", [])
     require(isinstance(prompts, list) and 1 <= len(prompts) <= 3, "defaultPrompt must contain one to three prompts")
     require(all(isinstance(prompt, str) and len(prompt) <= 128 for prompt in prompts), "A default prompt exceeds 128 characters")
-    for key in ("composerIcon", "logo"):
-        require((ROOT / interface[key]).is_file(), f"Codex {key} image is missing")
-    require("excluded" in text(ROOT / "assets" / "LICENSE").lower(), "Artwork license must state the Apache exclusion")
+    artwork_keys = ("composerIcon", "logo")
+    has_artwork = any(key in interface for key in artwork_keys)
+    require(all(key in interface for key in artwork_keys) or not has_artwork,
+            "Codex artwork paths must be both present or both absent")
+    if has_artwork:
+        for key in artwork_keys:
+            require((ROOT / interface[key]).is_file(), f"Codex {key} image is missing")
+        require("excluded" in text(ROOT / "assets" / "LICENSE").lower(),
+                "Artwork license must state the Apache exclusion")
+    else:
+        require(not (ROOT / "assets" / "logo.png").exists(),
+                "Unbranded forks must remove the reserved artwork")
+        require('<img src="assets/logo.png"' not in text(ROOT / "README.md"),
+                "Unbranded forks must remove the README logo reference")
     marketplace = json.loads(text(ROOT / ".claude-plugin" / "marketplace.json"))
-    require(any(entry.get("name") == manifest["name"] and entry.get("source") == "."
+    require(any(entry.get("name") == manifest["name"] and entry.get("source") in {".", "./"}
                 for entry in marketplace.get("plugins", [])), "Claude marketplace must expose the root plugin")
 
 
@@ -141,6 +152,9 @@ def test_authoritative_standard() -> None:
     )
     for token in required:
         require(token in standard, f"Authoritative concept missing: {token}")
+    finding_format = standard.split("## 37. Finding format", 1)[1].split("## 38. Audit process", 1)[0]
+    require("Loop Break:" in finding_format and "Validation:" in finding_format,
+            "Standard finding format lacks loop or validation")
     require(standard.count("```mermaid") >= 6, "Standard must include at least six Mermaid diagrams")
 
 
@@ -161,12 +175,15 @@ def test_scoring_contract() -> None:
     )
     for criterion in screen + workflow:
         require(f"## {criterion}" in scoring, f"Detailed scoring rubric missing: {criterion}")
-    require(scoring.count("**Warning signs:**") == 18, "Every screen/workflow criterion needs warning signs")
-    require(scoring.count("**Test:**") == 18, "Every screen/workflow criterion needs a test method")
+    require(scoring.count("**Warning signs:**") == 22, "Every scored criterion needs warning signs")
+    require(scoring.count("**Test:**") == 22, "Every scored criterion needs a test method")
     for criterion in ("Outcome predictability", "State feedback", "Cross-context consistency", "Failure recovery"):
         require(criterion in scoring, f"Behavior Confidence input missing: {criterion}")
     require("Do not copy screen or workflow scores" in scoring, "Behavior Confidence must not reuse other scores")
     require("Do not reuse UI or Flow criterion scores" in standard, "Standard does not define distinct Behavior Confidence inputs")
+    audit = text(REFERENCES / "audit-template.md")
+    require("| Observed interaction and state |" in audit and "Behavior Confidence coverage:" in audit,
+            "Audit template lacks interaction-level scoring evidence")
 
 
 def test_references_and_links() -> None:
@@ -212,7 +229,8 @@ def test_scenarios() -> None:
         gates = body.split("## Acceptance gates", 1)[1]
         require(len(re.findall(r"(?m)^- .+", gates)) >= 4, f"Scenario {name} needs substantive acceptance gates")
         for token in tokens:
-            require(re.search(rf"(?<!\w){re.escape(token)}(?!\w)", gates, re.IGNORECASE) is not None,
+            flags = 0 if token in {"DESIGN", "REVIEW", "AUDIT", "IMPROVE"} else re.IGNORECASE
+            require(re.search(rf"(?<!\w){re.escape(token)}(?!\w)", gates, flags) is not None,
                     f"Scenario {name} lacks acceptance gate: {token}")
 
 
@@ -263,9 +281,15 @@ def test_evaluation_kit_integrity() -> None:
         body = text(prompt)
         require(body.startswith("---\n") and "allowed_tools:" in body, f"Malformed eval prompt: {prompt}")
         graders = list((prompt.parent / "graders").glob("*.md"))
-        require(len(graders) >= 2, f"Eval case needs outcome and skill-use graders: {prompt.parent.name}")
+        require(len(graders) >= 2, f"Eval case needs outcome and routing graders: {prompt.parent.name}")
         require(all(text(grader).startswith("---\n") for grader in graders),
                 f"Eval grader lacks frontmatter: {prompt.parent.name}")
+        route = text(prompt.parent / "graders" / "route-used.md")
+        require("type: regex" in route and "arm: with-only" in route and "target: trace" in route,
+                f"Routing indicator must be unscored and accept the trace: {prompt.parent.name}")
+    confidence = ROOT / "evals" / "behavior-confidence-heldout" / "graders"
+    require("arm: with-only" in text(confidence / "vocabulary.md"),
+            "Plugin-specific vocabulary must not inflate the baseline comparison")
 
 
 def main() -> None:

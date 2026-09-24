@@ -1,5 +1,5 @@
 ---
 type: llm
 ---
-PASS if the answer preserves the existing page; identifies the misleading unchanged action and premature success wording; proposes pending, confirmed, rejected, duplicate-tap, and recovery behavior tied to the actual hold state; distinguishes observed facts from assumptions; and gives a way to validate the change.
-FAIL if it redesigns the entire page or library navigation, claims that sending equals a successful hold, or offers only a cosmetic button label without failure handling.
+PASS if the answer preserves the dashboard and existing workflow; identifies missing rental identity and current-date context as the source of avoidable backtracking; keeps the selected agreement clear in the dialog and confirmation; handles stale or changed selection safely; distinguishes the stated backend behavior from unobserved runtime details; and proposes a concrete check with customers who hold more than one rental.
+FAIL if it redesigns the whole portal, treats the correct backend update as evidence that users can predict the affected rental, or adds generic confirmation copy without restoring the missing agreement context.

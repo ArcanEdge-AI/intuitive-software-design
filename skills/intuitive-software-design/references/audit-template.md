@@ -118,6 +118,12 @@ Use only with representative coverage.
 
 For Behavior Confidence, record separate interaction-level outcome predictability, state feedback, cross-context consistency, and failure recovery evidence as defined in the scoring reference. Mark unobserved inputs `NE`; do not reuse UI or Flow scores.
 
+| Observed interaction and state | Outcome predictability 0–4 or NE | State feedback 0–4 or NE | Cross-context consistency 0–4 or NE | Failure recovery 0–4 or NE | Evidence and exclusions |
+| --- | ---: | ---: | ---: | ---: | --- |
+| | | | | | |
+
+Behavior Confidence coverage: __ evaluated criteria / __ applicable criteria across __ representative interactions. Report states and contexts not observed.
+
 | Dimension | Score / 100 or NE | Coverage | Rationale |
 | --- | ---: | --- | --- |
 | UI Clarity | | | |
