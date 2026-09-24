@@ -291,29 +291,44 @@ def test_evaluation_kit_integrity() -> None:
         require(len(graders) >= 2, f"Eval case needs outcome and routing graders: {prompt.parent.name}")
         require(all(text(grader).startswith("---\n") for grader in graders),
                 f"Eval grader lacks frontmatter: {prompt.parent.name}")
-        skill_name = "purpose-first-redesign" if prompt.parent.name == "redesign-routing-heldout" else "intuitive-software-design"
         invoked = text(prompt.parent / "graders" / "skill-invoked.md")
         read = text(prompt.parent / "graders" / "skill-read.md")
+        invoke_pattern = grader_input_match(invoked)
+        target_match = re.search(r'([a-z][a-z0-9-]+)"$', invoke_pattern.pattern)
+        require(target_match is not None, f"Skill indicator has no target: {prompt.parent.name}")
+        skill_name = target_match.group(1)
+        require((ROOT / "skills" / skill_name / "SKILL.md").is_file(),
+                f"Skill indicator targets an unbundled skill: {prompt.parent.name}")
         require("type: tool_used" in invoked and "tool: Skill" in invoked and "arm: with-only" in invoked
                 and skill_name in invoked and '"skill"' in invoked,
                 f"Skill routing indicator must match an exact invocation: {prompt.parent.name}")
         require("type: tool_used" in read and "tool: Read" in read and "arm: with-only" in read
                 and skill_name in read and r"SKILL\.md" in read,
                 f"Read routing indicator must match the skill file: {prompt.parent.name}")
-        other_skill = "intuitive-software-design" if skill_name == "purpose-first-redesign" else "purpose-first-redesign"
-        invoke_pattern = grader_input_match(invoked)
+        other_skill = next(path.parent.name for path in sorted((ROOT / "skills").glob("*/SKILL.md"))
+                           if path.parent.name != skill_name)
         read_pattern = grader_input_match(read)
         require(invoke_pattern.search(json.dumps({"skill": f"intuitive-software-design:{skill_name}"})) is not None
                 and invoke_pattern.search(json.dumps({"skill": f"intuitive-software-design:{other_skill}"})) is None,
                 f"Skill indicator matches the wrong skill: {prompt.parent.name}")
         for separator in ("/", "\\"):
-            correct_path = json.dumps({"file_path": f"plugin{separator}skills{separator}{skill_name}{separator}SKILL.md"})
-            wrong_path = json.dumps({"file_path": f"plugin{separator}skills{separator}{other_skill}{separator}SKILL.md"})
-            require(read_pattern.search(correct_path) is not None and read_pattern.search(wrong_path) is None,
+            skill_root = f"intuitive-software-design{separator}skills{separator}"
+            correct_paths = (
+                f"{skill_root}{skill_name}{separator}SKILL.md",
+                f"{skill_root}{other_skill}{separator}..{separator}{skill_name}{separator}SKILL.md",
+            )
+            wrong_paths = (
+                f"{skill_root}{other_skill}{separator}SKILL.md",
+                f"{skill_root}{skill_name}{separator}..{separator}{other_skill}{separator}SKILL.md",
+            )
+            require(all(read_pattern.search(json.dumps({"file_path": path})) is not None for path in correct_paths)
+                    and all(read_pattern.search(json.dumps({"file_path": path})) is None for path in wrong_paths),
                     f"Read indicator matches the wrong skill file: {prompt.parent.name}")
     confidence = ROOT / "evals" / "behavior-confidence-heldout" / "graders"
     require("arm: with-only" in text(confidence / "vocabulary.md"),
             "Plugin-specific vocabulary must not inflate the baseline comparison")
+    require("--ablation with-without" in text(ROOT / "README.md"),
+            "Eval instructions must use the supported two-arm comparison")
 
 
 def main() -> None:
