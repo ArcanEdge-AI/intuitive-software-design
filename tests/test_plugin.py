@@ -26,6 +26,12 @@ def text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def grader_input_match(body: str) -> re.Pattern[str]:
+    match = re.search(r"(?m)^input_match: '(.*)'$", body)
+    require(match is not None, "Routing grader lacks input_match")
+    return re.compile(match.group(1))
+
+
 def test_manifest() -> None:
     manifest_path = ROOT / ".codex-plugin" / "plugin.json"
     manifest = json.loads(text(manifest_path))
@@ -182,7 +188,8 @@ def test_scoring_contract() -> None:
     require("Do not copy screen or workflow scores" in scoring, "Behavior Confidence must not reuse other scores")
     require("Do not reuse UI or Flow criterion scores" in standard, "Standard does not define distinct Behavior Confidence inputs")
     audit = text(REFERENCES / "audit-template.md")
-    require("| Observed interaction and state |" in audit and "Behavior Confidence coverage:" in audit,
+    require("| Expected outcome and affected object | Observed action, result, and state |" in audit
+            and "Behavior Confidence coverage:" in audit,
             "Audit template lacks interaction-level scoring evidence")
 
 
@@ -284,9 +291,26 @@ def test_evaluation_kit_integrity() -> None:
         require(len(graders) >= 2, f"Eval case needs outcome and routing graders: {prompt.parent.name}")
         require(all(text(grader).startswith("---\n") for grader in graders),
                 f"Eval grader lacks frontmatter: {prompt.parent.name}")
-        route = text(prompt.parent / "graders" / "route-used.md")
-        require("type: regex" in route and "arm: with-only" in route and "target: trace" in route,
-                f"Routing indicator must be unscored and accept the trace: {prompt.parent.name}")
+        skill_name = "purpose-first-redesign" if prompt.parent.name == "redesign-routing-heldout" else "intuitive-software-design"
+        invoked = text(prompt.parent / "graders" / "skill-invoked.md")
+        read = text(prompt.parent / "graders" / "skill-read.md")
+        require("type: tool_used" in invoked and "tool: Skill" in invoked and "arm: with-only" in invoked
+                and skill_name in invoked and '"skill"' in invoked,
+                f"Skill routing indicator must match an exact invocation: {prompt.parent.name}")
+        require("type: tool_used" in read and "tool: Read" in read and "arm: with-only" in read
+                and skill_name in read and r"SKILL\.md" in read,
+                f"Read routing indicator must match the skill file: {prompt.parent.name}")
+        other_skill = "intuitive-software-design" if skill_name == "purpose-first-redesign" else "purpose-first-redesign"
+        invoke_pattern = grader_input_match(invoked)
+        read_pattern = grader_input_match(read)
+        require(invoke_pattern.search(json.dumps({"skill": f"intuitive-software-design:{skill_name}"})) is not None
+                and invoke_pattern.search(json.dumps({"skill": f"intuitive-software-design:{other_skill}"})) is None,
+                f"Skill indicator matches the wrong skill: {prompt.parent.name}")
+        for separator in ("/", "\\"):
+            correct_path = json.dumps({"file_path": f"plugin{separator}skills{separator}{skill_name}{separator}SKILL.md"})
+            wrong_path = json.dumps({"file_path": f"plugin{separator}skills{separator}{other_skill}{separator}SKILL.md"})
+            require(read_pattern.search(correct_path) is not None and read_pattern.search(wrong_path) is None,
+                    f"Read indicator matches the wrong skill file: {prompt.parent.name}")
     confidence = ROOT / "evals" / "behavior-confidence-heldout" / "graders"
     require("arm: with-only" in text(confidence / "vocabulary.md"),
             "Plugin-specific vocabulary must not inflate the baseline comparison")

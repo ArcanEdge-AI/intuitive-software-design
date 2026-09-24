@@ -419,16 +419,7 @@ Use product scoring only with representative coverage.
 | Flow Intuition | Evaluated workflow criteria across priority workflows | mean score / 4 × 100 |
 | Behavior Confidence | Four separately scored interaction criteria across representative observed interactions | mean evaluated interaction-criterion score / 4 × 100 |
 
-For each representative interaction, record the user's reasonable expectation, observed action and result, and these four independent 0–4 scores with evidence rationales:
-
-| Interaction criterion | What to assess |
-| --- | --- |
-| Outcome predictability | Before acting, can the intended user predict the result and affected object from the available cues? |
-| State feedback | During and after the action, can the user tell whether it is pending, succeeded, failed, or partially completed, and see the durable result? |
-| Cross-context consistency | Does the same action follow a learnable rule in comparable contexts, with meaningful exceptions made clear? |
-| Failure recovery | When the action fails or is interrupted, can the user understand the state, preserve work, and retry or choose a safe next step? |
-
-Apply the universal scale to observed behavior for each criterion. Mark an interaction criterion `NE` when its behavior was not observed; a screenshot alone cannot establish pending results or recovery. Calculate the mean over evaluated interaction-criterion scores only, and report both evaluated/possible criteria and which interaction states were exercised. Do not copy screen or workflow scores into Behavior Confidence. Keep Critical Failures separate.
+For each representative interaction, record the user's reasonable expectation, observed action and result, and scores using the four interaction rubrics above with evidence rationales. Mark a criterion `NE` when its behavior was not observed; a screenshot alone cannot establish pending results or recovery. Calculate the mean over evaluated interaction-criterion scores only, and report both evaluated/possible criteria and which interaction states were exercised. Do not copy screen or workflow scores into Behavior Confidence. Keep Critical Failures separate.
 
 Use an unweighted mean only when all three dimensions are evaluated. Define any risk-based weights before scoring. Report roles, tasks, screens, states, devices, accessibility methods, and exclusions.
 
