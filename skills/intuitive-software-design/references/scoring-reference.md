@@ -339,24 +339,96 @@ Show criterion scores, evidence rationales, evaluated count, `NE` criteria, and 
 
 ---
 
+# Behavior Confidence interaction scorecard
+
+Score each criterion for representative observed interactions using the universal 0–4 scale. Record `NE` when the required action or state has not been observed. These scores describe interaction behavior, not the screen or workflow scores above. Criterion scores can be reported from any observed interaction, but the Behavior Confidence dimension is `NE` unless interaction coverage is representative, as the standard's product-level assessment defines. One observed success path is never representative.
+
+## Outcome predictability
+
+**Measures:** whether the intended user can foresee the action's result and affected object before acting, and whether observed behavior matches that expectation.
+
+| Score | Observable behavior |
+| ---: | --- |
+| 0 | The visible promise points to a materially wrong object or result, preventing safe task completion. |
+| 1 | Users must guess, experiment, or seek explanation to predict a consequential action. |
+| 2 | The result and scope can be inferred only after deliberate checking or backtracking. |
+| 3 | Most intended users can state the result and affected object before acting, and the observed result matches. |
+| 4 | The prediction remains clear across realistic scopes, interruptions, and consequential variations. |
+
+**Warning signs:** generic action labels; missing object identity; hidden side effects; a preview that disagrees with the result.
+
+**Test:** before activation, ask the intended user what will change and for which object; then compare with the observed result.
+
+## State feedback
+
+**Measures:** whether the user can distinguish pending, success, failure, partial completion, and durable state for the interaction.
+
+| Score | Observable behavior |
+| ---: | --- |
+| 0 | The interaction presents a false success or gives no usable indication of consequential state. |
+| 1 | Users must retry, refresh, or ask someone else to discover the actual result. |
+| 2 | State is visible only indirectly or briefly and requires rechecking. |
+| 3 | Observed pending and result states are clear, honest, and tied to the affected object. |
+| 4 | State remains clear through delay, partial completion, interruption, and later return where those conditions apply. |
+
+**Warning signs:** unchanged control during work; success toast before durable completion; missing partial-result detail; status visible only by color.
+
+**Test:** observe the interaction in applicable slow, success, failure, and partial states; compare acknowledgment with the durable result.
+
+## Cross-context consistency
+
+**Measures:** whether the interaction follows a learnable rule across comparable objects, roles, devices, or repeated uses.
+
+| Score | Observable behavior |
+| ---: | --- |
+| 0 | The same apparent action produces incompatible consequential results across comparable contexts. |
+| 1 | Users repeatedly relearn or correct transferred expectations. |
+| 2 | The general rule transfers, but exceptions require avoidable checking. |
+| 3 | Comparable interactions follow a stable rule and visible exceptions are understandable. |
+| 4 | Expectations transfer immediately across relevant contexts while real domain differences remain explicit. |
+
+**Warning signs:** same label with different scope; inconsistent pending/result behavior; a device or role silently changing consequences.
+
+**Test:** compare the same action in at least two relevant contexts and ask users to predict the second from the first. Mark `NE` if only one context was observed.
+
+## Failure recovery
+
+**Measures:** whether a failed or interrupted interaction leaves the user with understandable state, preserved work, and a safe continuation.
+
+| Score | Observable behavior |
+| ---: | --- |
+| 0 | A failure leaves important work or outcome irrecoverable or unknown. |
+| 1 | Recovery requires support, full re-entry, or risky blind repetition. |
+| 2 | A retry or alternative exists, but state or duplication risk needs checking. |
+| 3 | Users see what happened, keep relevant work, and can retry or choose a safe next step. |
+| 4 | Recovery remains clear through partial results, duplicate attempts, and interruption where relevant. |
+
+**Warning signs:** lost input; generic error; retry after uncertain success; no path past a partial failure.
+
+**Test:** cause a realistic failure or interruption, then verify what is preserved, what the user can infer, and whether retry changes the result safely. Mark `NE` without failure evidence.
+
+---
+
 # Product assessment
 
-Use product scoring only with representative coverage.
+Use product scoring only with representative coverage. Report any dimension without it as `NE`, and show its criterion scores and coverage gaps instead. Do not report provisional or partial dimension percentages, and do not label a single screen's or workflow's percentage as UI Clarity or Flow Intuition.
 
 | Dimension | Inputs | Normalization |
 | --- | --- | --- |
 | UI Clarity | Evaluated screen criteria across representative screens | mean score / 4 × 100 |
 | Flow Intuition | Evaluated workflow criteria across priority workflows | mean score / 4 × 100 |
-| Behavior Confidence | Representative predictability, feedback/state, consistency, and recovery evidence | mean score / 4 × 100 |
+| Behavior Confidence | Four separately scored interaction criteria across representative observed interactions | mean evaluated interaction-criterion score / 4 × 100 |
+
+For each representative interaction, record the user's reasonable expectation, observed action and result, and scores using the four interaction rubrics above with evidence rationales. Mark a criterion `NE` when its behavior was not observed; a screenshot alone cannot establish pending results or recovery. Report Behavior Confidence only when interaction coverage is representative: the observed interactions include the task's consequential interactions, and every applicable criterion has evidence, including failure recovery wherever the action can fail and cross-context consistency wherever it recurs in another context. Otherwise report the dimension as `NE`. When it is reported, calculate the mean over evaluated interaction-criterion scores only, and report both evaluated/possible criteria and which interaction states were exercised. Do not copy screen or workflow scores into Behavior Confidence. Keep Critical Failures separate.
 
 Use an unweighted mean only when all three dimensions are evaluated. Define any risk-based weights before scoring. Report roles, tasks, screens, states, devices, accessibility methods, and exclusions.
 
 Required product summary:
 
 ```text
-UI Clarity:            __ / 100  (coverage: __)
-Flow Intuition:        __ / 100  (coverage: __)
-Behavior Confidence:   __ / 100  (coverage: __)
+UI Clarity:            __ / 100  or NE  (coverage: __)
+Flow Intuition:        __ / 100  or NE  (coverage: __)
+Behavior Confidence:   __ / 100  or NE  (coverage: __; representative: yes / no)
 Overall:               __ / 100  or NE
 
 Primary Weakness:

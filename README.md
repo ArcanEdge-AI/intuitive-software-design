@@ -9,10 +9,10 @@
 <p align="center">An evidence-grounded plugin for designing, reviewing, and improving software around the real tasks people need to complete.</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.3.0-9F7AEA?style=for-the-badge" alt="Version 1.3.0" />
+  <img src="https://img.shields.io/badge/version-1.3.1-9F7AEA?style=for-the-badge" alt="Version 1.3.1" />
   <img src="https://img.shields.io/badge/skills-8-2563EB?style=for-the-badge" alt="Eight focused skills" />
   <img src="https://img.shields.io/badge/harness-Claude%20Code%20%7C%20Codex-111827?style=for-the-badge" alt="Claude Code and Codex plugin formats" />
-  <img src="https://img.shields.io/badge/license-Apache--2.0-9F7AEA?style=for-the-badge" alt="Apache License 2.0" />
+  <img src="https://img.shields.io/badge/license-Apache--2.0%20%2B%20reserved%20artwork-9F7AEA?style=for-the-badge" alt="Apache-licensed skills and reserved artwork" />
 </p>
 
 <p align="center">
@@ -47,6 +47,13 @@ For a local trial from the repository root:
 
 ```bash
 claude --plugin-dir .
+```
+
+Once this version is on the repository's default branch, Claude Code users can add the [ArcanEdge marketplace](.claude-plugin/marketplace.json) and install the plugin:
+
+```text
+/plugin marketplace add ArcanEdge-AI/intuitive-software-design
+/plugin install intuitive-software-design@arcanedge-plugins
 ```
 
 When the plugin is available in Claude's directory, find **Intuitive Software Design** in the plugin browser and install it there.
@@ -98,9 +105,21 @@ The plugin treats synchronization as a product decision, not a default. It asks 
 
 ## Behavioral evaluation
 
-The evaluation kit contains eleven fictional scenario packets, a separate assessor rubric, and a comparison record. It covers product structure, decisions, findability, language, handoffs, experience progression, false success, appropriate density, cross-device continuation, promise-to-product continuity, and a local-only counterexample.
+The evaluation kit contains eleven fictional scenario packets, a separate assessor rubric, and a comparison record. Cases 01–06 are example-aligned regression cases; they must not be presented as independent evidence of generalization. Cases 07–11 broaden coverage.
+
+The [`evals/`](evals/) directory holds development and regression cases for `claude plugin eval`. They shaped the plugin's development, so their results are not independent evidence of improvement. Their directory names still contain `heldout` from when they were first written. Each case supplies raw product evidence rather than stating the constraints it is graded on, keeps its graders out of the agent prompt, and scores several independent criteria, so the baseline comparison can show partial differences. A case passes only when every scored criterion passes. Changing a case's prompt or a scored grader creates a new case version (a `-vN` directory) whose scores are not compared with earlier versions.
+
+[`evals-holdout/`](evals-holdout/) is the frozen validation suite (v1) for the candidate at commit `43f042d`. A separate author agent wrote its five cases without seeing any plugin instructions, earlier answers, or graders. Its prompts, criteria, and [analysis plan](evals-holdout/ANALYSIS-PLAN.md) were frozen with SHA-256 hashes before the run.
+
+The suite ran on 2026-09-25 with `claude-sonnet-5`, a Sonnet judge, and three runs per arm, and **no improvement was demonstrated on these cases**. With and without the plugin, every completed answer met all criteria applicable to its case under both the automated judge and a blind review, with 24 criteria across the suite and a pooled difference of +0.00; one no-plugin run timed out and was excluded. Three limitations apply: the cases did not discriminate, the judge and the blind reviewers were all Sonnet models, and no human audit was done.
+
+The v1 round is closed. Do not cite either suite as evidence that the plugin improves outcomes. After any later plugin change, these cases no longer count as held out for that change.
+
+For separately authorized new blind reviews, use the [current evidence-integrity entry point](scripts/README.md). It seals exported inputs and checks tool-free reviewer transcripts before analysis. The original v1 analysis code and results remain historical records; the tooling correction changes neither the closed finding nor its limitations.
 
 These fixtures support repeatable review; they do not prove that a model evaluation or human usability study has been run. Walkthrough predictions remain hypotheses until checked against the real product and intended-user evidence. Record not-run cases honestly and compare versions with matching inputs and settings where practical.
+
+Claude Code v2.1.269 or later can run the `evals/` suite with `claude plugin eval . --ablation with-without --no-publish --model <approved-model> --judge-model <approved-judge-model> --runs <approved-runs> --max-cost-usd <approved-budget>`. This suite is designed for two-arm comparison. Do not use `--ablation none` with its default 1.0 threshold: a correct run may invoke a skill or read its file without doing both, yet single-arm scoring counts both routing indicators. The run uses model calls, so choose the models, runs, and budget deliberately. If it is noninteractive and the plugin is trusted, add `--trust-plugin`. In two-arm comparisons, the routing, standard-read, and vocabulary graders are unscored indicators. A matching tool call shows the relevant skill was invoked or read; it does not prove the answer followed it. Interpret both indicators with the scored result and trace. The automated CI checks package structure, manifests, analysis regressions, and frozen suite hashes; it does not spend on behavioral evals.
 
 ## Validate the package
 
@@ -108,7 +127,11 @@ From the repository root:
 
 ```bash
 python tests/test_plugin.py
-claude plugin validate .
+python tests/test_review_integrity.py
+python evals-holdout/analysis/test_analyze.py
+python evals-holdout/analysis/analyze.py check evals-holdout --plugin-root .
+claude plugin validate --strict .
+claude plugin validate --strict .claude-plugin/plugin.json
 ```
 
 The structural tests check the package and its routing expectations. Use a fresh agent session for behavior checks so it loads the current plugin version.
@@ -117,11 +140,14 @@ The structural tests check the package and its routing expectations. Use a fresh
 
 ```text
 .
-├── .claude-plugin/       # Claude Code plugin manifest
+├── .claude-plugin/       # Claude Code plugin and marketplace manifests
 ├── .codex-plugin/        # Codex plugin manifest
-├── assets/               # ArcanEdge plugin artwork
+├── assets/               # Reserved ArcanEdge plugin artwork and its license
+├── evals/                # Development and regression eval cases
+├── evals-holdout/        # Frozen validation suite v1 for candidate 43f042d
 ├── LICENSE               # Apache License 2.0
 ├── NOTICE                # Attribution to ArcanEdge AI and source repository
+├── scripts/              # Current blind-review integrity entry point
 ├── skills/               # Eight self-contained skill workflows
 └── tests/                # Structural checks and forward-test scenarios
 ```
@@ -132,6 +158,8 @@ Intuitive Software Design is published by [ArcanEdge](https://www.arcanedge.ai/)
 
 ## License
 
-This project is licensed under the [Apache License 2.0](LICENSE). You may use, modify, and distribute it, including in commercial products, subject to the license terms.
+The plugin instructions, code, and documentation are licensed under the [Apache License 2.0](LICENSE). You may use, modify, and distribute them, including in commercial products, subject to the license terms. The ArcanEdge artwork in `assets/logo.png` is excluded and governed by [its separate license](assets/LICENSE).
+
+For a modified fork, remove the reserved logo file, the `composerIcon` and `logo` paths in the Codex manifest, and the README header image unless you have separate permission to use the artwork. The plugin tests accept that unbranded configuration.
 
 If you distribute this project or a derivative based on it, retain the license and the ArcanEdge attribution notice in [NOTICE](NOTICE), as required by the license. Each main skill file also carries a short source notice so attribution travels with individually reused skills. You do not have to publish private changes or contribute improvements back. The license does not grant permission to use ArcanEdge names or marks as your own branding.

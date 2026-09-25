@@ -1,0 +1,4 @@
+---
+type: llm
+---
+PASS if the answer's redesigned downgrade flow tells the customer, before they confirm, that any version older than 30 days will be permanently deleted within minutes of confirming, and that the customer cannot restore it themselves afterward — in any wording, before commitment. Mentioning the Team plan's 180-day window isn't required. This doesn't require a position on whether support could recover a version from internal backups (a separate matter). FAIL if the answer's description of the current rule omits this consequence, misstates it as gradual or delayed, states retention numbers but reverses which plan retains longer, or reveals the consequence only after downgrade is confirmed. Proposing a change, such as a delayed-deletion recovery window, is not a misstatement and doesn't fail this, as long as the current rule is also described accurately.

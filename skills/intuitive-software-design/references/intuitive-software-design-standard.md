@@ -1,6 +1,6 @@
 # Intuitive Software Design Standard
 
-Version 1.1 — Normative source
+Version 1.4 — Normative source
 
 This document is the authoritative standard for the Intuitive Software Design plugin. Companion scorecards, examples, and templates operationalize it; this document controls if wording conflicts.
 
@@ -81,7 +81,7 @@ Separate:
 - **Inference:** a reasoned consequence for the intended user.
 - **Unknown:** behavior or state that evidence cannot establish.
 
-Never invent research, behavior, hidden interaction, or user success. Use `NE — Not Evaluated: Insufficient Evidence` instead of a score when the criterion cannot be judged. A screenshot may support hierarchy and label observations but usually cannot prove loading behavior, keyboard operation, recovery, or an end-to-end workflow.
+Never invent research, behavior, hidden interaction, or user success. Never state a business rule—timing, price, eligibility, entitlement, or another policy outcome—that the evidence does not establish, including in proposed interface copy; mark it as a rule to confirm. Use `NE — Not Evaluated: Insufficient Evidence` instead of a score when the criterion cannot be judged. A screenshot may support hierarchy and label observations but usually cannot prove loading behavior, keyboard operation, recovery, or an end-to-end workflow.
 
 ---
 
@@ -817,7 +817,7 @@ Evaluate an individual screen with:
 | Action clarity | Can they identify available actions and the primary action? |
 | Control recognition | Can they recognize how controls operate and what they affect? |
 | Information clarity | Can they interpret the information needed for the task? |
-| Feedback/state visibility | Can they see current, pending, success, failure, and changed state where relevant? |
+| Feedback and state visibility | Can they see current, pending, success, failure, and changed state where relevant? |
 | Cognitive load | Is avoidable interpretation, recall, or decision effort controlled? |
 | Consistency | Do patterns transfer from comparable parts of the product and relevant conventions? |
 
@@ -848,7 +848,9 @@ Summarize three dimensions on a 0–100 scale only when evidence is broad enough
 
 - **UI Clarity:** mean of evaluated screen-criterion scores across a representative screen set, normalized by `score / 4 × 100`.
 - **Flow Intuition:** mean of evaluated workflow-criterion scores across representative priority workflows, normalized the same way.
-- **Behavior Confidence:** mean of evaluated predictability, feedback/state, consistency, and recovery evidence across representative interactions, normalized the same way.
+- **Behavior Confidence:** score four interaction-level criteria—outcome predictability, state feedback, cross-context consistency, and failure recovery—across representative observed interactions. Use the 0–4 anchors in the [scoring reference](scoring-reference.md), exclude `NE`, report criterion and interaction coverage, and normalize the mean by `score / 4 × 100`. Do not reuse UI or Flow criterion scores as these inputs.
+
+Report a dimension as `NE` when its coverage is not representative, even when some of its criteria can be scored; show those criterion scores and the missing coverage instead. Do not present provisional, partial, or estimated dimension percentages; a single screen's or workflow's percentage is not a product dimension. Behavior Confidence coverage is representative only when the observed interactions include the task's consequential interactions and every applicable interaction criterion has evidence: failure recovery wherever the action can fail, and cross-context consistency wherever the action recurs in another context, device, role, or condition. One observed success path is never representative.
 
 The default overall score is the unweighted mean of the three dimensions only when all three are evaluated. If product risk justifies weights, define them before scoring and explain them. Do not manufacture missing dimensions or silently treat `NE` as zero.
 
@@ -921,6 +923,7 @@ Severity: Critical | High | Medium | Low
 Score: [criterion and 0-4, or NE]
 Recommendation: [smallest complete corrective change]
 Expected Outcome: [observable improvement]
+Validation: [test or evidence that would demonstrate improvement]
 ```
 
 Use the full shape for formal reviews and audits. Quick advice can be shorter, but it must remain specific.
@@ -952,7 +955,7 @@ Then:
 6. Score supported screen or workflow criteria with evidence.
 7. Check Critical Failures independently.
 8. Prioritize by severity, task importance, frequency, and dependency.
-9. Recommend smallest complete changes, including pending, success, failure, and recovery states where relevant.
+9. Recommend smallest complete changes that meet the [recovery and validation contract](#recovery-and-validation-contract).
 10. Define observable validation for each important recommendation.
 
 Audit questions:
@@ -980,7 +983,7 @@ For a new design:
 4. Inventory required information and decisions; defer only what can safely wait.
 5. Define default, empty, loading, pending, success, failure, partial, permission, offline, and recovery states that actually apply.
 6. Check accessibility and alternate input at the interaction-contract level.
-7. Define measurable requirements.
+7. Define measurable requirements and validation that meet the [recovery and validation contract](#recovery-and-validation-contract).
 8. Propose structure and controls only after the behavior is coherent.
 
 Do not pretend a proposed design has observed usability evidence. Label predictions and validation needs honestly.
@@ -996,6 +999,7 @@ For an existing design or implementation:
 - distinguish a code-path concern from runtime proof;
 - cite the exact control, transition, state, or missing state;
 - state the intended-user consequence as an inference when it was not directly observed;
+- make each recommended change meet the [recovery and validation contract](#recovery-and-validation-contract);
 - avoid generic advice such as “improve feedback” or “simplify the screen.”
 
 Preferred diagnosis:
@@ -1017,6 +1021,24 @@ Evidence -> Loop break -> Friction source -> Smallest complete change -> Observa
 Rank changes by critical failures, high-severity task barriers, repeated friction, and foundational fixes that resolve multiple findings. Preserve effective conventions, domain density, workflows, and components. Do not modernize, flatten, rename, hide, or add navigation without a demonstrated benefit.
 
 A complete change handles the relevant interaction contract. A new success label without pending and failure behavior may be smaller, but it is incomplete when network work can fail.
+
+### Recovery and validation contract
+
+Every recommended or designed change, in any mode, meets this contract where it applies. Skills may summarize it; this section controls.
+
+For each consequential action the change introduces or alters:
+
+1. Define the pending, success, failure, and partial states that can occur, and prevent duplicate activation while work is pending.
+2. Show known constraints before the person commits where the system can know them; when an action is still rejected, explain the cause and the next step.
+3. On failure or interruption, keep the person's valid work and choices and give a clear way to continue or try again without repeating a harmful or duplicate action.
+4. Confirm the actual resulting state—what changed, and for which object—in a form the person can find again. State only outcomes the evidence establishes; a dispatched request or optimistic update is not completion.
+5. Cover the branches the evidence names, such as eligibility windows, roles, or an object changed elsewhere before the action completed.
+
+For each important recommendation, define validation:
+
+6. A functional check that the actual behavior and resulting state match the recommendation.
+7. When the recommendation depends on people finding, understanding, or trusting something, a check with intended users that states the goal without naming the control or route.
+8. The observable result that would show success—for example, completion without help, a correct account of what happened, or fewer wrong turns—without invented targets, timings, or findings. Lagging signals such as support volume can supplement a direct check but do not replace it.
 
 ## 42. Measurable usability requirements
 
@@ -1076,6 +1098,7 @@ The standard must not be used to:
 - prescribe universal synchronization, identical cross-platform interfaces, or unnecessary background work without a task-grounded need;
 - treat a marketing promise, dispatched request, or optimistic update as proof of a completed user outcome;
 - claim an inaccessible experience is fully intuitive;
+- present an unconfirmed business rule or policy outcome as fact, including in proposed interface copy;
 - remove necessary risk controls in the name of fewer steps.
 
 ## 45. Quality-control checklist
@@ -1092,6 +1115,7 @@ Before accepting a design, review, audit, or improvement:
 - Are Critical Failures outside aggregates?
 - Are examples and recommendations concrete?
 - Are accessibility and recovery part of the interaction contract?
+- Does each recommended change meet the recovery and validation contract?
 - Are beginner recognition and expert efficiency both considered when relevant?
 - Does each recommendation solve the underlying problem with the smallest complete change?
 - Does the result help the user think about their work instead of the software?

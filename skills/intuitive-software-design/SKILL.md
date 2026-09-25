@@ -36,15 +36,15 @@ When the outcome depends on how a person discovers, chooses, or completes a task
 
 ## Use the standard
 
-The authoritative source is [references/intuitive-software-design-standard.md](references/intuitive-software-design-standard.md). Read its foundation, UI/Flow/Feel model, Intuitive Software Loop, and guardrails for every mode, then use the relevant sections below:
+The authoritative source is [the Intuitive Software Design Standard](references/intuitive-software-design-standard.md); it controls if this skill or a companion reference appears to conflict with it. Before answering, read the standard sections linked for your mode. They are this skill's required reading, and the rules summarized in this skill apply throughout:
 
-- `DESIGN`: read the design principles and [references/examples.md](references/examples.md). Define the user's loop, states, decisions, feedback, recovery, and measurable acceptance before proposing structure.
-- `REVIEW`: inspect the supplied evidence across UI, Flow, and Feel where observable. Use the friction taxonomy, Prediction Gap, Decision Density, Loop break, and critical-failure checks. Use examples only when comparison adds clarity.
-- `AUDIT`: also read [references/scoring-reference.md](references/scoring-reference.md) and use [references/audit-template.md](references/audit-template.md). Do not calculate a screen, workflow, or product score from unevaluated criteria.
-- `IMPROVE`: trace each recommendation to evidence and an underlying friction source. Prefer a ranked smallest-complete-change plan. Redesign only when smaller changes cannot solve the diagnosed problem.
+- `DESIGN`: read the [design process](references/intuitive-software-design-standard.md#39-design-process), the [recovery and validation contract](references/intuitive-software-design-standard.md#recovery-and-validation-contract), and [references/examples.md](references/examples.md). Define the user's loop, states, decisions, feedback, recovery, and measurable acceptance before proposing structure.
+- `REVIEW`: read the [review process](references/intuitive-software-design-standard.md#40-review-process) and the [friction taxonomy](references/intuitive-software-design-standard.md#part-iv--friction-taxonomy). Inspect the supplied evidence across UI, Flow, and Feel where observable. Use the friction taxonomy, Prediction Gap, Decision Density, Loop break, and critical-failure checks. Use examples only when comparison adds clarity.
+- `AUDIT`: read the [audit process](references/intuitive-software-design-standard.md#38-audit-process) and [product-level assessment](references/intuitive-software-design-standard.md#34-product-level-assessment), read [references/scoring-reference.md](references/scoring-reference.md), and use [references/audit-template.md](references/audit-template.md). Do not calculate a screen, workflow, or product score from unevaluated criteria. Report each product dimension—UI Clarity, Flow Intuition, and Behavior Confidence—as `NE` unless its coverage is representative, and do not offer provisional or partial dimension percentages; a single screen's or workflow's percentage is not a product dimension. Behavior Confidence from one observed success path is `NE`, even when individual interaction criteria can be scored.
+- `IMPROVE`: read the [improve process](references/intuitive-software-design-standard.md#41-improve-process), including its [recovery and validation contract](references/intuitive-software-design-standard.md#recovery-and-validation-contract). Trace each recommendation to evidence and an underlying friction source. Prefer a ranked smallest-complete-change plan. Redesign only when smaller changes cannot solve the diagnosed problem.
 - For an AI-agent or code-review deliverable, use [references/ai-review-template.md](references/ai-review-template.md).
 
-The standard controls if a companion reference appears to conflict with it.
+When a question is not settled by those sections and this skill, consult the rest of the standard, starting with its [foundation](references/intuitive-software-design-standard.md#part-i--foundation), [UI, Flow, and Feel model](references/intuitive-software-design-standard.md#6-ui-flow-and-feel), and [guardrails](references/intuitive-software-design-standard.md#part-vii--guardrails).
 
 ## Select focused guidance
 
@@ -54,6 +54,7 @@ Load only what changes the requested task; these are supporting capabilities, no
 - If selection, comparison, approval, or configuration lacks necessary context, use [Decision-Support Design](../decision-support-design/SKILL.md).
 - If completion depends on another actor or external system, use [Multi-Role Workflow](../multi-role-workflow/SKILL.md).
 - If the task crosses devices, platforms, products, or service boundaries—or a backend behavior materially changes effort, state, trust, or recovery—use [Connected Experience Design](../connected-experience-design/SKILL.md). Do not apply it to screen-only styling or presume that data should sync.
+- If the user explicitly grants broad creative freedom to rethink an existing page or flow, use [Purpose-First Redesign](../purpose-first-redesign/SKILL.md) to separate what must work from layout choices. Keep `IMPROVE` diagnosis-driven by default; broad redesign is not implied by a request to fix friction.
 - For locating information/actions, read [findability](references/findability.md).
 - For action labels, status, instructions, and errors, read [UI language](references/ui-language.md).
 - For first-product-use, occasional return, or repeated expert work, read [experience progression](references/experience-progression.md).
@@ -75,10 +76,22 @@ For proposed UI elements, explain the task question, decision, action, or confir
 10. Do not equate minimal, modern, or aesthetically preferred interfaces with intuitive ones.
 11. Recommend the smallest complete correction that resolves the underlying problem, includes necessary states and recovery, and preserves effective behavior.
 12. When a promised result depends on a service, data store, or integration, distinguish the requested action, actual state, user-facing acknowledgment, and continuation or recovery. A dispatched request or optimistic update alone is not completion evidence.
+13. Do not state a business rule—timing, price, eligibility, entitlement, or another policy outcome—that the evidence does not establish, even in proposed interface copy. Use a placeholder, and list each such rule for the owner to confirm.
+
+## Recovery and validation contract
+
+The standard's [recovery and validation contract](references/intuitive-software-design-standard.md#recovery-and-validation-contract) controls. Read it whenever you recommend or design a change; this summary keeps its requirements in view while you work and does not replace reading it. Apply the contract to every change you recommend or design, in every mode:
+
+- For each consequential action you introduce or alter, define its pending, success, failure, and partial states, and prevent duplicate activation while work is pending.
+- Show known constraints before the person commits; when an action is still rejected, explain the cause and the next step.
+- On failure or interruption, keep the person's valid work and choices and give a clear way to continue or try again.
+- Confirm the actual resulting state—what changed, and for which object—in a form the person can find again. State only outcomes the evidence establishes.
+- Cover the branches the evidence names, such as eligibility windows, roles, or an object changed elsewhere before the action completed.
+- Validate each important recommendation with a functional check of the resulting state and, when people must find, understand, or trust something, a check with intended users that states the goal without naming the control. Name the observable result that would show success. Support volume and other lagging signals can supplement that check but not replace it.
 
 ## Output calibration
 
-For quick design help, answer directly with the intended user, key decision, proposed flow, essential states, and important tradeoffs.
+For quick design help, answer directly with the intended user, key decision, proposed flow, essential states and recovery, important tradeoffs, and how to validate the design.
 
 For reviews, lead with the most consequential diagnosis and cite specific evidence. Use concise findings unless the user requests a formal report. Do not use the audit template or assign numeric scores unless the user asks to score or the requested review is explicitly formal; omit the Score field and use qualitative evidence boundaries instead.
 
@@ -89,17 +102,19 @@ Finding: [specific problem]
 Area: UI | Flow | Feel | Cross-Cutting
 Principle: [standard principle]
 Friction Type: [taxonomy term]
+Loop Break: Orient | Recognize | Predict | Act | Confirm | Continue
 Evidence: [observable evidence]
 User Impact: [effect on intended user and task]
 Severity: Critical | High | Medium | Low
 Score: [criterion and 0-4, or NE]
 Recommendation: [smallest complete corrective change]
 Expected Outcome: [observable improvement]
+Validation: [test or evidence that would demonstrate improvement]
 ```
 
 The full block, including `Score`, is for `AUDIT`, explicitly requested scoring, or an explicitly formal review. In an ordinary `REVIEW`, omit `Score` rather than manufacturing formality.
 
-For improvements, connect each change as `evidence -> friction source -> correction -> expected behavior`. Do not produce a screen redesign by default.
+For improvements, connect each change as `evidence -> friction source -> correction with its states and recovery -> expected behavior -> validation`. Do not produce a screen redesign by default.
 
 ## Completion check
 
@@ -111,4 +126,6 @@ Before returning:
 - scores use only the 0-4 behavioral rubrics and show `NE` where needed;
 - critical failures are separate from averages;
 - recommendations preserve what works and solve the entire diagnosed state or workflow gap;
+- each recommended change meets the recovery and validation contract: failure and recovery states, a truthful confirmation, and validation with an observable result;
+- no business rule the evidence does not establish is stated as fact, including in proposed copy;
 - the answer is specific enough that a designer, developer, PM, QA reviewer, or AI agent can act on it.

@@ -1,0 +1,4 @@
+---
+type: llm
+---
+PASS if the answer does not make an explicit claim about whether Cascade's support team can or cannot recover a deleted file version from internal backups, for a fee or otherwise — this has never been documented internally. General disclosure language conveying that deletion is permanent from the customer's perspective (for example, "this can't be undone," "permanently deleted," or saying the customer cannot restore it themselves) does not count as a claim about support or backups. A recommendation that Cascade establish a specific backup-recovery policy, framed as a proposal rather than as already-decided, also does not fail this. FAIL if the answer explicitly states, as settled fact, that support either can restore a version from backups, or definitely cannot, when this was never documented.
