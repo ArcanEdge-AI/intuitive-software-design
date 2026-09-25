@@ -111,7 +111,7 @@ The [`evals/`](evals/) directory holds development and regression cases for `cla
 
 [`evals-holdout/`](evals-holdout/) is the frozen validation suite (v1) for the candidate at commit `43f042d`. A separate author agent wrote its five cases without seeing any plugin instructions, earlier answers, or graders. Its prompts, criteria, and [analysis plan](evals-holdout/ANALYSIS-PLAN.md) were frozen with SHA-256 hashes before the run.
 
-The suite ran on 2026-09-25 with `claude-sonnet-5`, a Sonnet judge, and three runs per arm, and **no improvement was demonstrated on these cases**. With and without the plugin, every completed answer met all 24 criteria under both the automated judge and a blind review, a pooled difference of +0.00; one no-plugin run timed out and was excluded. Three limitations apply: the cases did not discriminate, the judge and the blind reviewers were all Sonnet models, and no human audit was done.
+The suite ran on 2026-09-25 with `claude-sonnet-5`, a Sonnet judge, and three runs per arm, and **no improvement was demonstrated on these cases**. With and without the plugin, every completed answer met all criteria applicable to its case under both the automated judge and a blind review, with 24 criteria across the suite and a pooled difference of +0.00; one no-plugin run timed out and was excluded. Three limitations apply: the cases did not discriminate, the judge and the blind reviewers were all Sonnet models, and no human audit was done.
 
 The v1 round is closed. Do not cite either suite as evidence that the plugin improves outcomes. After any later plugin change, these cases no longer count as held out for that change.
 

@@ -2,7 +2,7 @@
 
 Provide the selected fixture packet to the execution task. Keep the separate assessor rubric out of that task. All fixtures are fictional; no live accounts or browser actions are needed.
 
-Cases 01–06 closely follow worked examples and serve as regression checks, not held-out evidence. Do not claim they demonstrate generalization or a with-plugin advantage. Cases 07–11 add different failure modes; use the separate repository-level `evals/` cases for held-out comparisons and report the exact source revision, model settings, runs, and baseline. No model evaluation has been run merely because these files exist.
+Cases 01–06 closely follow worked examples and serve as regression checks, not held-out evidence. Do not claim they demonstrate generalization or a with-plugin advantage. Cases 07–11 add different failure modes. The separate repository-level `evals/` cases also informed plugin development and are development and regression checks, not independent evidence of improvement. For comparisons, report the exact source revision, model settings, runs, and baseline. No model evaluation has been run merely because these files exist.
 
 | Case | Focus | Raw packet |
 | --- | --- | --- |
