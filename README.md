@@ -115,9 +115,11 @@ The suite ran on 2026-09-25 with `claude-sonnet-5`, a Sonnet judge, and three ru
 
 The v1 round is closed. Do not cite either suite as evidence that the plugin improves outcomes. After any later plugin change, these cases no longer count as held out for that change.
 
+For separately authorized new blind reviews, use the [current evidence-integrity entry point](scripts/README.md). It seals exported inputs and checks tool-free reviewer transcripts before analysis. The original v1 analysis code and results remain historical records; the tooling correction changes neither the closed finding nor its limitations.
+
 These fixtures support repeatable review; they do not prove that a model evaluation or human usability study has been run. Walkthrough predictions remain hypotheses until checked against the real product and intended-user evidence. Record not-run cases honestly and compare versions with matching inputs and settings where practical.
 
-Claude Code v2.1.269 or later can run the `evals/` suite with `claude plugin eval . --ablation with-without --no-publish --model <approved-model> --judge-model <approved-judge-model> --runs <approved-runs> --max-cost-usd <approved-budget>`. This suite is designed for two-arm comparison. Do not use `--ablation none` with its default 1.0 threshold: a correct run may invoke a skill or read its file without doing both, yet single-arm scoring counts both routing indicators. The run uses model calls, so choose the models, runs, and budget deliberately. If it is noninteractive and the plugin is trusted, add `--trust-plugin`. In two-arm comparisons, the routing, standard-read, and vocabulary graders are unscored indicators. A matching tool call shows the relevant skill was invoked or read; it does not prove the answer followed it. Interpret both indicators with the scored result and trace. The automated CI checks package structure and manifests only; it does not spend on behavioral evals.
+Claude Code v2.1.269 or later can run the `evals/` suite with `claude plugin eval . --ablation with-without --no-publish --model <approved-model> --judge-model <approved-judge-model> --runs <approved-runs> --max-cost-usd <approved-budget>`. This suite is designed for two-arm comparison. Do not use `--ablation none` with its default 1.0 threshold: a correct run may invoke a skill or read its file without doing both, yet single-arm scoring counts both routing indicators. The run uses model calls, so choose the models, runs, and budget deliberately. If it is noninteractive and the plugin is trusted, add `--trust-plugin`. In two-arm comparisons, the routing, standard-read, and vocabulary graders are unscored indicators. A matching tool call shows the relevant skill was invoked or read; it does not prove the answer followed it. Interpret both indicators with the scored result and trace. The automated CI checks package structure, manifests, analysis regressions, and frozen suite hashes; it does not spend on behavioral evals.
 
 ## Validate the package
 
@@ -125,7 +127,11 @@ From the repository root:
 
 ```bash
 python tests/test_plugin.py
+python tests/test_review_integrity.py
+python evals-holdout/analysis/test_analyze.py
+python evals-holdout/analysis/analyze.py check evals-holdout --plugin-root .
 claude plugin validate --strict .
+claude plugin validate --strict .claude-plugin/plugin.json
 ```
 
 The structural tests check the package and its routing expectations. Use a fresh agent session for behavior checks so it loads the current plugin version.
@@ -141,6 +147,7 @@ The structural tests check the package and its routing expectations. Use a fresh
 ├── evals-holdout/        # Frozen validation suite v1 for candidate 43f042d
 ├── LICENSE               # Apache License 2.0
 ├── NOTICE                # Attribution to ArcanEdge AI and source repository
+├── scripts/              # Current blind-review integrity entry point
 ├── skills/               # Eight self-contained skill workflows
 └── tests/                # Structural checks and forward-test scenarios
 ```

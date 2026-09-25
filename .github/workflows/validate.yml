@@ -20,6 +20,11 @@ jobs:
           node-version: '22'
       - name: Test plugin contracts
         run: python tests/test_plugin.py
+      - name: Test analysis integrity and frozen suite
+        run: |
+          python tests/test_review_integrity.py
+          python evals-holdout/analysis/test_analyze.py
+          python evals-holdout/analysis/analyze.py check evals-holdout --plugin-root .
       - name: Install Claude Code validator
         run: npm install -g @anthropic-ai/claude-code@2.1.263
       - name: Validate Claude plugin and marketplace
