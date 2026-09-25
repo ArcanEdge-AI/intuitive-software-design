@@ -68,6 +68,12 @@ def test_manifest() -> None:
     require("mcpServers" not in manifest and "apps" not in manifest and "hooks" not in manifest, "Plugin must remain self-contained")
     interface = manifest["interface"]
     require(interface["displayName"] == "Intuitive Software Design", "Display name is not discoverable")
+    # Match the OpenAI directory upload contract, which rejects the old "Design" label.
+    require(interface.get("category") in {
+        "Productivity", "Creativity", "Developer Tools", "Business & Operations", "Data & Analytics",
+        "Communication", "Education & Research", "Security", "Finance", "Healthcare", "Travel",
+        "Entertainment", "Other",
+    }, "Codex category is not accepted by the OpenAI plugin directory")
     prompts = interface.get("defaultPrompt", [])
     require(isinstance(prompts, list) and 1 <= len(prompts) <= 3, "defaultPrompt must contain one to three prompts")
     require(all(isinstance(prompt, str) and len(prompt) <= 128 for prompt in prompts), "A default prompt exceeds 128 characters")
