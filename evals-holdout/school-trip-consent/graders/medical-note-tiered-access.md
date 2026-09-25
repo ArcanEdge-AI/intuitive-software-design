@@ -1,0 +1,4 @@
+---
+type: llm
+---
+PASS if the design restricts full medical-note text, once submitted, to the nurse and the organizing teacher — every guardian, including whoever wrote the notes, sees only the yes/no flag afterward, unless the nurse or teacher separately chooses to share specifics directly (allowed by policy, and doesn't fail this). The answer needn't mention that a guardian can see what they're typing while filling in the form. Adding new medical information after submission, without viewing or changing what was submitted, is not editing. A proposal to change who can see notes, framed as a suggestion rather than current behavior, doesn't fail this. FAIL if the design lets any guardian view or change previously submitted note text, or lets office staff or other teachers see the full text.
