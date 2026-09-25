@@ -105,7 +105,15 @@ The plugin treats synchronization as a product decision, not a default. It asks 
 
 ## Behavioral evaluation
 
-The evaluation kit contains eleven fictional scenario packets, a separate assessor rubric, and a comparison record. Cases 01–06 are example-aligned regression cases; they must not be presented as independent evidence of generalization. Cases 07–11 broaden coverage, and the separate [held-out eval cases](evals/) test new requests without putting graders in the agent prompt. Each held-out case supplies raw product evidence rather than stating the constraints it is graded on, and scores several independent criteria so the baseline comparison can show partial differences; a case passes only when every scored criterion passes. Changing a case's prompt or a scored grader creates a new case version (a `-vN` directory) whose scores are not compared with earlier versions.
+The evaluation kit contains eleven fictional scenario packets, a separate assessor rubric, and a comparison record. Cases 01–06 are example-aligned regression cases; they must not be presented as independent evidence of generalization. Cases 07–11 broaden coverage.
+
+The [`evals/`](evals/) directory holds development and regression cases for `claude plugin eval`. They shaped the plugin's development, so their results are not independent evidence of improvement. Their directory names still contain `heldout` from when they were first written. Each case supplies raw product evidence rather than stating the constraints it is graded on, keeps its graders out of the agent prompt, and scores several independent criteria, so the baseline comparison can show partial differences. A case passes only when every scored criterion passes. Changing a case's prompt or a scored grader creates a new case version (a `-vN` directory) whose scores are not compared with earlier versions.
+
+[`evals-holdout/`](evals-holdout/) is the frozen validation suite (v1) for the candidate at commit `43f042d`. A separate author agent wrote its five cases without seeing any plugin instructions, earlier answers, or graders. Its prompts, criteria, and [analysis plan](evals-holdout/ANALYSIS-PLAN.md) were frozen with SHA-256 hashes before the run.
+
+The suite ran on 2026-09-25 with `claude-sonnet-5`, a Sonnet judge, and three runs per arm, and **no improvement was demonstrated on these cases**. With and without the plugin, every completed answer met all 24 criteria under both the automated judge and a blind review, a pooled difference of +0.00; one no-plugin run timed out and was excluded. Three limitations apply: the cases did not discriminate, the judge and the blind reviewers were all Sonnet models, and no human audit was done.
+
+The v1 round is closed. Do not cite either suite as evidence that the plugin improves outcomes. After any later plugin change, these cases no longer count as held out for that change.
 
 These fixtures support repeatable review; they do not prove that a model evaluation or human usability study has been run. Walkthrough predictions remain hypotheses until checked against the real product and intended-user evidence. Record not-run cases honestly and compare versions with matching inputs and settings where practical.
 
@@ -129,7 +137,8 @@ The structural tests check the package and its routing expectations. Use a fresh
 ├── .claude-plugin/       # Claude Code plugin and marketplace manifests
 ├── .codex-plugin/        # Codex plugin manifest
 ├── assets/               # Reserved ArcanEdge plugin artwork and its license
-├── evals/                # Held-out Claude Code behavior cases
+├── evals/                # Development and regression eval cases
+├── evals-holdout/        # Frozen validation suite v1 for candidate 43f042d
 ├── LICENSE               # Apache License 2.0
 ├── NOTICE                # Attribution to ArcanEdge AI and source repository
 ├── skills/               # Eight self-contained skill workflows
