@@ -21,7 +21,7 @@
     "developerName": "ArcanEdge AI",
     "composerIcon": "./assets/logo.png",
     "logo": "./assets/logo.png",
-    "category": "Design",
+    "category": "Developer Tools",
     "capabilities": [
       "Design",
       "Review",
