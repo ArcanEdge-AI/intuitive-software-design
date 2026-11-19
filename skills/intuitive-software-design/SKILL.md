@@ -10,6 +10,10 @@ Apply the standard relative to the intended user. The objective is not to remove
 
 ## Route the request
 
+For a user journey map, interactive task walkthrough, or comparison of changes in an existing map, hand off to [User-Task Walkthrough](../user-task-walkthrough/SKILL.md#map-the-journey) for the HTML and its source record. Apply the modes below when the request also calls for design work, diagnosis, or scoring.
+
+For questions about which paths people take and what happens afterwards, use [Journey Analytics](../journey-analytics/SKILL.md) with supplied behavior evidence.
+
 Classify the primary mode from the user's outcome, not from a keyword alone:
 
 - `DESIGN`: shape something that does not yet exist or prevent intuition problems before implementation.

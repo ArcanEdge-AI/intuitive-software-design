@@ -1,0 +1,4 @@
+interface:
+  display_name: "Journey Analytics"
+  short_description: "Measure choices and outcomes across a user journey"
+  default_prompt: "Use $journey-analytics to measure next actions, completion, waiting time, rework, and recovery from the supplied data."

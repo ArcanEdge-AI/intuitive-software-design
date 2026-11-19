@@ -12,12 +12,18 @@ Follow the whole job across actors, not only the current person's last screen. R
 
 Establish the overall outcome and each actor's legitimate subtask. Identify the object being handed off, current owner, state, authority to act, needed information, and completion signals. Include relevant external systems or offline work from supplied evidence; do not invent email, spreadsheet, or operational dependencies.
 
+Build the role inventory before tracing the steps. For each assignment or decision, record the product's role label, the work it owns, and its scope. Inspect both the shared record and any parts assigned independently. When the interface supports different assignment modes, check the controls and saved assignments for each in-scope mode. Use a walkthrough or test fixture to establish the route it exercises, then check the other modes in the current implementation or specification.
+
+Keep separately assigned roles distinct even when they share a workspace, permissions, or a person. A record owner and a specialist responsible for an assigned part have different scopes. Use the role's label from the evidence and state when its assignment applies. Group labels only when the evidence shows their responsibilities are interchangeable throughout the scoped workflow. Keep a supported role in the inventory when its entry point or actions are unknown, and state the gap.
+
 | Stage / shared object | Actor and authority | Input and prerequisite | Action / transition | Next owner and visible acknowledgment | Failure / recovery | Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
 
 Separate **permission**, **responsibility**, and **visibility**. A manager who can view a request may not own its next action. A successful submission does not prove delivery, review, approval, processing, or payment. Treat a service or integration as a system boundary with a real state transition, not automatically as another human role. When the same work must continue across devices or products, use [Connected Experience Design](../connected-experience-design/SKILL.md) for the relevant task and state continuity.
 
 ## Inspect consequential handoffs
+
+At every change of owner, identify the work being transferred, the condition that sends it, the role that can act on it, the place where that role picks it up, and the confirmation available to each side. Check the receiver's entry point from that role's view. Include stalled delivery, reassignment, or return for correction when those outcomes change who has the next action.
 
 For the task, check:
 
@@ -49,3 +55,5 @@ Validation: In an authorized fixture, verify the handoff, receiver entry point, 
 ## Return
 
 Provide the actor/state map, consequential gaps, evidence-supported smallest corrections, selected failure/return paths, and validation per boundary. Identify critical misrouting, unauthorized disclosure, or irreversible effects separately. No unrequested scores or live workflow changes.
+
+For an interactive map, use the [journey record format](../user-task-walkthrough/references/journey-map.md#write-the-record). Give each role in the inventory its own `people` entry with its responsibility and scope, including roles without a separate screen. Name the acting role on the step and add `authority` where the owner and permitted actors differ. Attach a handoff to the specific continuation that transfers the work. A successful send and a receiving queue entry each deserve their own evidence when available. If the receiver or acknowledgment is unknown, retain the known transition and record the gap in the step. Before rendering, check that each independently assigned role in every mapped branch has a corresponding `people` entry and that the step actors match the evidence for that branch.

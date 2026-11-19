@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-"""Deterministic structural and contract tests for the plugin source."""
+"""Deterministic checks for the plugin structure and bundled tooling."""
 
 from __future__ import annotations
 
+import base64
 import json
 import re
+import subprocess
+import sys
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -282,6 +286,223 @@ def test_references_and_links() -> None:
                 require(fragment in heading_slugs(text(linked)), f"Broken anchor in {markdown.name}: {target}")
 
 
+def test_journey_renderer_cli() -> None:
+    renderer = ROOT / "skills" / "user-task-walkthrough" / "scripts" / "render_journey.py"
+    step = {
+        "id": "check-result",
+        "title": "Check the result",
+        "surface": "Draft view",
+        "cue": "The draft shows its name and save status.",
+        "expectation": "The name persists after reopening.",
+        "action": "Reopen the draft.",
+        "result": "Confirm the saved name.",
+        "continuation": "Return to the draft list.",
+        "basis": "proposed",
+        "sources": [],
+        "next": None,
+    }
+    journey = {
+        "version": 1,
+        "title": "Review a saved draft",
+        "goal": "Confirm the literal label </script> remains text.",
+        "role": "Draft author",
+        "entry": "A named draft",
+        "success": "The saved name is visible.",
+        "coverage": "Proposed behavior.",
+        "start": step["id"],
+        "sources": [],
+        "steps": [step],
+    }
+    with TemporaryDirectory(prefix="journey map ") as directory:
+        record = Path(directory) / "journey.json"
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        command = [sys.executable, str(renderer), str(record)]
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode == 0, result.stderr)
+        output = record.with_name("index.html")
+        rendered = output.read_text(encoding="utf-8")
+        data = re.search(r'<script id="journey-data" type="application/json">(.*?)</script>', rendered)
+        require(data is not None and json.loads(data[1]) == journey,
+                "The standalone page must preserve the record inside its inert JSON element")
+        manifest = json.loads(text(ROOT / ".codex-plugin" / "plugin.json"))
+        logo_path = manifest["interface"].get("logo")
+        embedded_logo = re.search(r'<img class="masthead-logo" src="data:image/png;base64,([^"]+)"', rendered)
+        if logo_path:
+            require(embedded_logo is not None and base64.b64decode(embedded_logo[1]) == (ROOT / logo_path).read_bytes(),
+                    "The standalone page must embed the original plugin logo")
+        else:
+            require(embedded_logo is None, "The page should render without reserved artwork")
+
+        step["branches"] = [{"label": "Save failed", "to": "missing-step"}]
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "unknown id: 'missing-step'" in result.stderr,
+                "A missing branch destination should produce an actionable error")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "Rendering an invalid record should leave the previous page intact")
+
+        review = {**step, "id": "read-inbox", "title": "Find the submitted draft", "actor": "reviewer"}
+        del review["branches"]
+        journey["people"] = [
+            {"id": "author", "label": "Author", "responsibility": "Prepare and send the draft."},
+            {"id": "reviewer", "label": "Reviewer", "responsibility": "Open submitted drafts."},
+        ]
+        journey["sources"] = [
+            {"id": "fixture", "label": "Synthetic decisions", "location": "test fixture", "note": "First choices."},
+            {"id": "draft-spec", "label": "Draft workflow", "location": "test specification",
+             "note": "Saved drafts can be reopened from the original list."},
+        ]
+        step.update({
+            "actor": "author",
+            "next": review["id"],
+            "nextLabel": "Send",
+            "nextCondition": "The draft is ready to send.",
+            "nextHandoff": {
+                "work": "Submitted draft",
+                "entry": "Review inbox",
+                "acknowledgment": "The reviewer sees the item in their inbox.",
+            },
+            "branches": [{"id": "keep-editing", "label": "Keep editing", "to": step["id"]}],
+            "measurements": [{
+                "basis": "fixture", "source": "fixture", "cohort": "Draft authors",
+                "period": "Synthetic sample", "window": "First choice within one day",
+                "unit": "drafts", "eligible": 10, "counts": {"next": 7, "keep-editing": 2},
+            }],
+        })
+        journey["steps"].append(review)
+        gap = {
+            "step": review["id"],
+            "question": "When is the draft visible to the reviewer?",
+            "impact": "Determines whether the author needs a receipt confirmation.",
+            "check": "Open the review inbox in a test account after submission.",
+        }
+        journey["scenarios"] = [{
+            "label": "A reviewer receives a draft",
+            "steps": [step["id"], review["id"]],
+            "gaps": [gap],
+        }]
+        draft_list = {
+            "label": "Use the draft list",
+            "kind": "baseline",
+            "change": "Find the draft in the original list.",
+            "effect": "The author uses the established workflow.",
+            "tradeoff": "Finding one draft may require searching.",
+            "support": "The fixture specifies reopening from the list.",
+            "steps": [step["id"]],
+            "sources": ["draft-spec"],
+        }
+        draft_link = {
+            "label": "Link to the submitted draft",
+            "kind": "proposed",
+            "change": "Expose a saved draft link on the confirmation.",
+            "effect": "The author may find the submitted draft with less effort.",
+            "tradeoff": "The link depends on the draft retaining its access rules.",
+            "support": "The existing record shows that the draft can be saved.",
+            "openQuestion": "Can authors use the link after leaving the submission view?",
+            "steps": [step["id"]],
+            "sources": ["draft-spec"],
+        }
+        journey["comparisons"] = [{
+            "question": "How should an author find a submitted draft?",
+            "goal": "Let the author reopen the saved draft.",
+            "options": [draft_list, draft_link],
+            "check": "Ask authors to reopen a submitted draft using each option.",
+            "decisionRule": "Choose the link if it helps authors find the draft and preserves access.",
+        }]
+        completion = {
+            "kind": "completion",
+            "definition": "First submitted drafts with a recorded review decision.",
+            "eligible": 10, "measured": 8, "count": 6,
+            "steps": [review["id"]],
+        }
+        wait = {
+            "kind": "waiting",
+            "definition": "From first submission to first reviewer entry for drafts with paired times.",
+            "measured": 4, "statistic": "median", "seconds": 52.5,
+            "steps": [step["id"], review["id"]],
+        }
+        journey["outcomes"] = [{
+            "basis": "fixture", "source": "fixture", "cohort": "Draft authors",
+            "period": "Synthetic follow-up sample", "window": "Within two days of first submission",
+            "unit": "drafts", "metrics": [completion, wait, {
+                "kind": "rework", "definition": "First submitted drafts that were corrected and resubmitted.",
+                "eligible": 10, "measured": 8, "count": 0,
+            }, {
+                "kind": "recovery", "definition": "Interrupted draft reviews that resumed.",
+                "eligible": 3, "measured": 2, "count": 1,
+            }],
+        }]
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode == 0, result.stderr)
+        rendered = output.read_text(encoding="utf-8")
+        data = re.search(r'<script id="journey-data" type="application/json">(.*?)</script>', rendered)
+        require(data is not None and json.loads(data[1]) == journey,
+                "The generated HTML must preserve handoffs, measurements, gaps, comparisons, and outcomes")
+
+        for metric, key, value, message in (
+            (completion, "eligible", 7, ".eligible must be an integer from measured"),
+            (completion, "count", 9, ".count must be an integer from 0 through measured"),
+            (wait, "seconds", float("inf"), ".seconds must be a finite nonnegative duration"),
+        ):
+            original = metric[key]
+            metric[key] = value
+            record.write_text(json.dumps(journey), encoding="utf-8")
+            result = subprocess.run(command, capture_output=True, text=True, check=False)
+            require(result.returncode != 0 and message in result.stderr,
+                    "The CLI must reject inconsistent outcome evidence")
+            require(output.read_text(encoding="utf-8") == rendered,
+                    "An invalid outcome measurement must leave the valid map intact")
+            metric[key] = original
+
+        draft_link["sources"] = ["missing-source"]
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0
+                and "comparisons[0].options[1].sources refers to an unknown id: 'missing-source'" in result.stderr,
+                "A comparison must reference known evidence")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "A rejected comparison must leave the valid map intact")
+        draft_link["sources"] = ["draft-spec"]
+
+        del draft_list["sources"]
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0
+                and "comparisons[0].options[0].sources needs at least one supporting source for a baseline"
+                in result.stderr, "A baseline must cite supporting evidence")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "An unsupported baseline record must leave the valid map intact")
+        draft_list["sources"] = ["draft-spec"]
+
+        journey["scenarios"][0]["steps"].remove(review["id"])
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0
+                and "scenarios[0].gaps[0].step must be listed in scenarios[0].steps" in result.stderr,
+                "An evidence gap must link to a step on its scenario")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "A rejected evidence gap must leave the valid map intact")
+        journey["scenarios"][0]["steps"].append(review["id"])
+
+        journey["gaps"] = journey["scenarios"][0].pop("gaps")
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "Nest evidence gaps in scenarios[].gaps" in result.stderr,
+                "The renderer must reject gaps it would otherwise silently omit")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "Misplaced evidence gaps must leave the valid map intact")
+        journey["scenarios"][0]["gaps"] = journey.pop("gaps")
+
+        step["measurements"][0]["counts"]["keep-editing"] = 4
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "counts exceed the eligible denominator" in result.stderr,
+                "The CLI must reject overlapping or inconsistent decision counts")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "A rejected measurement must leave the valid map intact")
+
+
 def heading_slugs(markdown: str) -> set[str]:
     """GitHub-style heading anchors, ignoring headings inside fenced code blocks."""
     prose = re.sub(r"(?ms)^```.*?^```", "", markdown)
@@ -328,6 +549,7 @@ def test_bundled_skill_discovery() -> None:
         "intuitive-software-design", "purpose-first-redesign", "user-task-walkthrough",
         "product-mental-model", "decision-support-design", "multi-role-workflow",
         "behavioral-evaluation", "connected-experience-design",
+        "journey-analytics",
     }
     found = {path.parent.name for path in (ROOT / "skills").glob("*/SKILL.md")}
     require(found == expected, f"Bundled skill catalog mismatch: {sorted(found)}")
@@ -450,6 +672,7 @@ def main() -> None:
         test_authoritative_standard,
         test_scoring_contract,
         test_references_and_links,
+        test_journey_renderer_cli,
         test_scenarios,
         test_no_placeholders,
         test_bundled_skill_discovery,
