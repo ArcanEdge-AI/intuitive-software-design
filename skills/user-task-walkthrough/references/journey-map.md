@@ -4,6 +4,12 @@ Use the walkthrough to trace a consequential goal from realistic starting points
 
 For a workflow that changes hands, follow [Multi-Role Workflow](../../multi-role-workflow/SKILL.md). Identify whose action is pending, what they can see or change, and which saved item the next person receives.
 
+## Map a proposed journey
+
+Start from the idea's stated job, intended users, and constraints. Propose a plausible entry, meaningful decisions and handoffs, a recognizable outcome, and an alternate route for a consequential problem such as interruption, rejection, or unavailable work. Use a labeled branch and an ordered Coverage scenario for supported design alternatives or recovery. Use `basis: "proposed"` for candidate steps and label proposed cues, locations, system effects, and actor responsibilities as design hypotheses. Cite the brief for requirements it actually establishes.
+
+Anchor assumptions that could change the design in Coverage. Each should say what would happen if the assumption is wrong and how to check it with an intended user, a prototype, or a policy owner. Leave unknown business rules undecided. Use two materially different proposed options for consequential decisions without a current workflow. Review the outline against the brief and the proposed rules, and cite each according to its status when reviewed rendering applies.
+
 ## Outline the routes before writing steps
 
 Work outward from the goal and starting states. At each material decision, trace the available choice, the condition checked after the attempt, the resulting state, and the next supported checkpoint. Compare implementation, tests, and documentation and preserve consequential differences. Include role restrictions, waiting, unsuccessful outcomes, and recovery where they change what the person can do.
@@ -161,7 +167,11 @@ Follow [Journey Analytics](../../journey-analytics/SKILL.md#measure-journey-outc
 
 ## Compare changes
 
-Add a top-level `comparisons` list when the team is deciding what to change. Give each decision a `question`, the shared user `goal`, and two or more materially different `options`. Compare the options under the same permissions, recovery, and task constraints.
+Inspect full maps for material friction after tracing the proposed or existing paths. Look for avoidable effort, unclear decisions, repeated work, waiting without a next action, lost progress, or handoffs that leave either party unsure. Prioritize cases that could prevent completion, cause consequential errors, or create meaningful work for the user or platform. State the actual consequence and leave its prevalence unmeasured when data is missing. Use Coverage for unknowns that need investigation. Keep low-impact observations out of **What to change**.
+
+Add a top-level `comparisons` list for worthwhile changes or requested design decisions. Give each decision a `question`, the shared user `goal`, and two or more materially different `options`. Compare the current or proposed choices under the same permissions, recovery, and task constraints and include the option of keeping the current flow when supported.
+
+For a friction finding, add `"finding": {"step": "checkpoint-id", "basis": "code", "summary": "What happens and the consequence", "sources": ["source-id"]}` to its comparison. Pick the step where the person encounters the friction. Use `observed`, `code`, or `specified` with supporting sources for an established behavior and qualify untested user consequences. Use `proposed` for a design risk. The finding appears on the affected step with a link to its comparison.
 
 A `baseline` describes current behavior or the current specification within the scope of its cited sources. Match each material claim in the option to that evidence. Sources can establish available actions and rules independently of presentation, sequence, or discoverability. Narrow the baseline to the known facts when evidence is incomplete. An assumed design belongs in a `proposed` option. A comparison can use proposed options when a sourced baseline is unavailable.
 
@@ -217,6 +227,14 @@ Before rendering, verify each baseline's `label` on its own, then read its `chan
   }]
 }
 ```
+
+## Preview a proposed flow
+
+Add a `preview` object to a proposed option whose change meaningfully affects what users see or do. Use sample values and realistic labels from the brief or product evidence. Start just before the affected action and include a recognizable outcome, plus the failure, recovery, or handoff that matters for the comparison. When a different person takes over, give them their own screen and show the context they receive.
+
+`preview.start` names the first screen. Each entry in `preview.screens` has a unique `id`, a `title`, the visible `actor`, and a short `body` with the screen's state or message. Use optional `fields` with `label` and `value` for information the person needs. Use `actions` with a `label` and destination screen ID in `to`. Omit actions on an ending screen. Put the usual action first. Give alternate choices concrete labels such as “Try a failed upload.” Keep every screen reachable and give each recovery loop a way to finish. Back and restart are provided by the renderer.
+
+Use text and local simulated transitions. Mark proposed outcomes as hypotheses in the comparison and keep assumed policy and evidence gaps visible. Omit credentials, personal data, real record identifiers, and working links or commands from preview screens.
 
 ## Audit the draft from the sources
 
@@ -293,7 +311,7 @@ For a walkthrough without those boundaries, run the bundled [renderer](../script
 python -X utf8 scripts/render_journey.py "<output-folder>/journey.json"
 ```
 
-The command validates the record and writes `index.html` beside it. It can replace a page it generated previously. The HTML opens on the connected journey map. Select a card to open its details and evidence, select a labeled branch to follow it, or choose **Start walkthrough** for guided steps. Open **Coverage** to jump to a scenario checkpoint and **What to change** to compare options when the record supplies them. Check the main route, one recovery branch, a coverage checkpoint with a gap, and any available comparison links in a browser when available. Use **Fit map** for an overview at any zoom.
+The command validates the record and writes `index.html` beside it. It can replace a page it generated previously. The HTML opens on the main route. Select a card to see its actions, select **Alternate paths** to show the wider graph, or choose **Start walkthrough** for guided steps. **Step details and evidence** holds the source notes and supporting context. Open **Coverage** to jump to a scenario checkpoint and **What to change** to compare options when the record supplies them. Use **Preview proposed flow** on an option to try its sample screens. Check a main route, a recovery branch, a Coverage link, and the preview's outcome, Back, restart and close controls in a browser when available. Use **Fit map** to fit the visible graph.
 
 The map opens directly as a local file. If the environment lacks Python or a preview, give the user the files that were produced and state what remains.
 

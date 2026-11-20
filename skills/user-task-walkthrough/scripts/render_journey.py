@@ -222,6 +222,55 @@ def validate_record_routes(routes, steps, start):
             raise ValueError(f"{origin} -> {destination} crosses into '{record_entries[destination]}' without a record transition")
 
 
+def reachable(start, edges):
+    seen = set()
+    pending = [start]
+    while pending:
+        identifier = pending.pop()
+        if identifier not in seen:
+            seen.add(identifier)
+            pending.extend(edges[identifier])
+    return seen
+
+
+def validate_preview(preview, field):
+    if not isinstance(preview, dict):
+        raise ValueError(f"{field} must be an object")
+    screens = records(preview.get("screens"), f"{field}.screens")
+    start = preview.get("start")
+    require_reference(start, screens, f"{field}.start")
+    edges = {}
+    for identifier, screen in screens.items():
+        name = f"{field}.screens.{identifier}"
+        for key in ("title", "actor", "body"):
+            require_text(screen.get(key), f"{name}.{key}")
+        for list_key, required in (("fields", ("label", "value")), ("actions", ("label", "to"))):
+            entries = screen.get(list_key, [])
+            if not isinstance(entries, list):
+                raise ValueError(f"{name}.{list_key} must be a list")
+            for index, entry in enumerate(entries):
+                item = f"{name}.{list_key}[{index}]"
+                if not isinstance(entry, dict):
+                    raise ValueError(f"{item} must be an object")
+                for key in required:
+                    require_text(entry.get(key), f"{item}.{key}")
+                if list_key == "actions":
+                    require_reference(entry["to"], screens, f"{item}.to")
+        actions = screen.get("actions", [])
+        if len({action["label"] for action in actions}) != len(actions):
+            raise ValueError(f"{name}.actions repeats a label")
+        edges[identifier] = [action["to"] for action in actions]
+
+    if not edges[start]:
+        raise ValueError(f"{field}.start needs an action")
+    if missing := screens.keys() - reachable(start, edges):
+        raise ValueError(f"{field} has unreachable screens: {', '.join(sorted(missing))}")
+    endings = {identifier for identifier, targets in edges.items() if not targets}
+    for identifier in screens:
+        if not reachable(identifier, edges) & endings:
+            raise ValueError(f"{field}.screens.{identifier} has no path to a preview outcome")
+
+
 def validate_comparisons(comparisons, steps, sources):
     if not isinstance(comparisons, list):
         raise ValueError("comparisons must be a list")
@@ -231,6 +280,18 @@ def validate_comparisons(comparisons, steps, sources):
             raise ValueError(f"{field} must be an object")
         for key in ("question", "goal", "check", "decisionRule"):
             require_text(comparison.get(key), f"{field}.{key}")
+        if "finding" in comparison:
+            finding = comparison["finding"]
+            name = f"{field}.finding"
+            if not isinstance(finding, dict):
+                raise ValueError(f"{name} must be an object")
+            require_reference(finding.get("step"), steps, f"{name}.step")
+            require_text(finding.get("summary"), f"{name}.summary")
+            if finding.get("basis") not in ("observed", "code", "specified", "proposed"):
+                raise ValueError(f"{name}.basis must be observed, code, specified or proposed")
+            evidence = reference_list(finding.get("sources", []), sources, f"{name}.sources")
+            if finding["basis"] != "proposed" and not evidence:
+                raise ValueError(f"{name}.sources needs supporting evidence for a friction finding")
         options = comparison.get("options")
         if not isinstance(options, list) or len(options) < 2:
             raise ValueError(f"{field}.options needs at least two options")
@@ -250,6 +311,10 @@ def validate_comparisons(comparisons, steps, sources):
             evidence = reference_list(option.get("sources", []), sources, f"{name}.sources")
             if kind == "baseline" and not evidence:
                 raise ValueError(f"{name}.sources needs at least one supporting source for a baseline")
+            if "preview" in option:
+                if kind != "proposed":
+                    raise ValueError(f"{name}.preview belongs on a proposed option")
+                validate_preview(option["preview"], f"{name}.preview")
 
 
 def validate(journey):
@@ -387,14 +452,7 @@ def validate(journey):
         primary.add(cursor)
         cursor = steps[cursor]["next"]
 
-    seen = set()
-    pending = [start]
-    while pending:
-        identifier = pending.pop()
-        if identifier not in seen:
-            seen.add(identifier)
-            pending.extend(edges[identifier])
-    if missing := steps.keys() - seen:
+    if missing := steps.keys() - reachable(start, edges):
         raise ValueError(f"Steps unreachable from start: {', '.join(sorted(missing))}")
 
 

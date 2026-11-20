@@ -9,7 +9,7 @@
 <p align="center">An evidence-grounded plugin for designing, reviewing, and improving software around the real tasks people need to complete.</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.4.0-9F7AEA?style=for-the-badge" alt="Version 1.4.0" />
+  <img src="https://img.shields.io/badge/version-1.5.0-9F7AEA?style=for-the-badge" alt="Version 1.5.0" />
   <img src="https://img.shields.io/badge/skills-9-2563EB?style=for-the-badge" alt="Nine focused skills" />
   <img src="https://img.shields.io/badge/harness-Claude%20Code%20%7C%20Codex-111827?style=for-the-badge" alt="Claude Code and Codex plugin formats" />
   <img src="https://img.shields.io/badge/license-Apache--2.0%20%2B%20reserved%20artwork-9F7AEA?style=for-the-badge" alt="Apache-licensed skills and reserved artwork" />
@@ -97,7 +97,9 @@ The skills share one authoritative standard rather than maintaining competing de
 
 Try asking “Map how a staff member completes this task. Include the pending state and how they recover from a failure. Give me an interactive HTML page.”
 
-The walkthrough saves `journey.json` and renders a standalone `index.html` with Python 3.8 or newer and no third-party dependencies. Open the HTML to explore the main route, alternate outcomes, handoffs, and supplied decision measurements. **Coverage** links scenarios to their checkpoints and shows open evidence questions on the affected steps. **Journey outcomes** shows measured results and data coverage by cohort when evidence is available. **What to change** lays out the options, their supporting evidence and tradeoffs, and what to test before choosing. The [journey map workflow](skills/user-task-walkthrough/references/journey-map.md) explains how to refresh the record and regenerate the page.
+The walkthrough saves `journey.json` and renders a standalone `index.html` with Python 3.8 or newer and no third-party dependencies. It can trace an existing workflow from evidence or map a product idea with proposed paths and explicit assumptions. The HTML opens on the main route. Use **Alternate paths** to reveal branches and select a step to see its actions, outcomes, and handoffs.
+
+**Coverage** links scenarios to their checkpoints and shows open evidence questions on the affected steps. **Journey outcomes** shows measured results and data coverage by cohort when evidence is available. **What to change** connects consequential friction to options, their supporting evidence and tradeoffs, and what to test before choosing. Use **Preview proposed flow** to click through a proposed change and its recovery paths with sample data. The [journey map workflow](skills/user-task-walkthrough/references/journey-map.md) explains how to refresh the record and regenerate the page.
 
 ## The design loop
 
