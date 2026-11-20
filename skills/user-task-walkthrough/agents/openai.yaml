@@ -1,4 +1,0 @@
-interface:
-  display_name: "User-Task Walkthrough"
-  short_description: "Trace user tasks and build interactive journey maps."
-  default_prompt: "Use $user-task-walkthrough to trace how an intended user would complete this task through the interface."

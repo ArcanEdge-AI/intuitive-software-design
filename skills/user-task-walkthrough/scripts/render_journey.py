@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Render a journey record as a standalone interactive HTML page."""
 
 from __future__ import annotations
