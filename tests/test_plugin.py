@@ -333,6 +333,43 @@ def test_journey_renderer_cli() -> None:
         else:
             require(embedded_logo is None, "The page should render without reserved artwork")
 
+        source_root = Path(directory) / "evidence"
+        source_root.mkdir()
+        source_file = source_root / "source file.txt"
+        source_file.write_bytes(b"First line\nSecond line")
+        git = ["git", "-c", "core.autocrlf=false", "-C", str(source_root)]
+        subprocess.run([*git, "init", "-q"], check=True)
+        subprocess.run([*git, "add", "--", source_file.name], check=True)
+        subprocess.run([*git, "-c", "user.name=Journey Test", "-c", "user.email=test@example.invalid",
+                        "-c", f"core.hooksPath={source_root / 'no-hooks'}", "-c", "commit.gpgsign=false",
+                        "commit", "-qm", "Pin two evidence lines"], check=True)
+        revision = subprocess.check_output([*git, "rev-parse", "HEAD"], text=True).strip()
+        source_file.write_bytes(b"First line\r\nSecond line\r\nOnly in the working copy\r\n")
+        cited = {"id": "pinned-file", "label": "Saved evidence", "note": "The pinned file has two lines."}
+        journey["sources"] = [cited]
+        with_root = [*command, "--source-root", str(source_root)]
+        for location, invocation, expected in (
+            (f"source file.txt:1, 2–3 @ {revision}", with_root, "ends at line 3, but the cited file has 2 lines"),
+            (f"source file.txt:2–1 @ {revision}", with_root, "positive, ordered line range"),
+            (f"source file.txt:1–2 @ {revision}", command, "needs --source-root"),
+        ):
+            cited["location"] = location
+            record.write_text(json.dumps(journey), encoding="utf-8")
+            result = subprocess.run(invocation, capture_output=True, text=True, check=False)
+            require(result.returncode != 0 and expected in result.stderr, result.stderr)
+            require(output.read_text(encoding="utf-8") == rendered,
+                    "A failed citation check must preserve the existing page")
+        cited["location"] = f"source file.txt:1–2 @ {revision}"
+        journey["sources"].append({
+            "id": "local-file", "label": "Working source", "location": "source file.txt:2-3",
+            "note": "The unversioned file has an additional line.",
+        })
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(with_root, capture_output=True, text=True, check=False)
+        require(result.returncode == 0, result.stderr)
+        rendered = output.read_text(encoding="utf-8")
+        journey["sources"] = []
+
         step["branches"] = [{"label": "Save failed", "to": "missing-step"}]
         record.write_text(json.dumps(journey), encoding="utf-8")
         result = subprocess.run(command, capture_output=True, text=True, check=False)
@@ -354,6 +391,9 @@ def test_journey_renderer_cli() -> None:
         ]
         step.update({
             "actor": "author",
+            "assignments": [
+                {"role": "reviewer", "work": "Review this draft and return a decision."},
+            ],
             "next": review["id"],
             "nextLabel": "Send",
             "nextCondition": "The draft is ready to send.",
@@ -440,6 +480,257 @@ def test_journey_renderer_cli() -> None:
         require(data is not None and json.loads(data[1]) == journey,
                 "The generated HTML must preserve handoffs, measurements, gaps, comparisons, and outcomes")
 
+        journey["version"] = 2
+        del step["surface"], review["surface"]
+        step.update(statusLocation="Draft list", actionLocation="Draft editor", sources=["fixture"])
+        review.update(statusLocation="Review inbox", actionLocation=None)
+        journey["sources"].extend([
+            {"id": "send-contract", "label": "Sending rules", "location": "test sending rules",
+             "note": "A ready draft can be delivered to review. A draft can also remain with the author."},
+            {"id": "review-authority", "label": "Reviewer access", "location": "test reviewer policy",
+             "note": "The assigned reviewer can open submitted drafts."},
+        ])
+        step["nextSources"] = ["send-contract"]
+        step["branches"][0].update(actionLocation=None, sources=["send-contract"])
+        review["actorSources"] = ["review-authority"]
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode == 0, result.stderr)
+        rendered = output.read_text(encoding="utf-8")
+        data = re.search(r'<script id="journey-data" type="application/json">(.*?)</script>', rendered)
+        require(data is not None and json.loads(data[1]) == journey,
+                "The generated HTML must preserve separate step and branch locations, including explicit unknowns")
+        require("Where they see the status" in rendered and "Where they take the action" in rendered,
+                "New maps must give status and action locations different labels")
+
+        audit = subprocess.run([*command, "--review-routes"], capture_output=True, text=True, check=False)
+        require(audit.returncode == 0, audit.stderr)
+        delivered, _, retry = audit.stdout.partition("check-result -> check-result | Keep editing")
+        require("check-result -> read-inbox | Send" in delivered
+                and "Condition: The draft is ready to send." in delivered
+                and "Actor: Author -> Reviewer" in delivered
+                and "Receiving action: Reopen the draft. | Location: Unspecified" in delivered
+                and "Review inbox" not in delivered,
+                "The route review must identify the receiving actor and leave an unknown action location explicit")
+        require("Branch action location: Unspecified" in retry and "Location: Draft editor" in retry,
+                "The route review must report the branch location separately from the destination location")
+        focused = subprocess.run([*command, "--review-routes", step["id"]],
+                                 capture_output=True, text=True, check=False)
+        require(focused.returncode == 0 and "Origin sources: test fixture" in focused.stdout
+                and "Destination sources: Unspecified" in focused.stdout
+                and "Transition sources: test sending rules" in focused.stdout
+                and "Receiving actor sources: test reviewer policy" in focused.stdout,
+                focused.stderr or focused.stdout)
+        require(output.read_text(encoding="utf-8") == rendered,
+                "Reviewing the saved routes must leave the existing page intact")
+
+        step["branches"][0]["sources"] = ["missing-transition-source"]
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "branches[0].sources refers to an unknown id" in result.stderr,
+                "A branch must cite a registered source for its own transition")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "A rejected transition citation must leave the previous page intact")
+        step["branches"][0]["sources"] = ["send-contract"]
+
+        scenario = journey["scenarios"][0]
+        scenario["path"] = True
+        scenario["steps"].reverse()
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "has no transition from 'read-inbox' to 'check-result'" in result.stderr,
+                "A declared route must fail if one intended continuation is absent from the graph")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "A disconnected declared route must leave the previous page intact")
+
+        review["branches"] = [{"label": "Return draft", "to": step["id"]}]
+        scenario["steps"].append(review["id"])
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode == 0, result.stderr)
+        route_html = output.read_text(encoding="utf-8")
+        route_data = re.search(r'<script id="journey-data" type="application/json">(.*?)</script>', route_html)
+        require(route_data is not None and json.loads(route_data[1])["scenarios"][0] == scenario,
+                "Coverage must preserve an ordered return route that revisits a checkpoint")
+        scenario["steps"].pop()
+        del review["branches"], scenario["path"]
+        scenario["steps"].reverse()
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode == 0 and output.read_text(encoding="utf-8") == rendered, result.stderr)
+
+        step.update(record="Original draft", nextCreates="Review request")
+        review.update(record="Review request", continuationUnknown=True)
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode == 0, result.stderr)
+        accepted_record_html = output.read_text(encoding="utf-8")
+
+        outline = {
+            "steps": [
+                {"id": step["id"], "source": "Draft policy, section 1", "assignees": ["reviewer"]},
+                {"id": review["id"], "source": "Review policy, section 2", "actor": "reviewer",
+                 "record": "Review request", "statusLocation": "Review inbox", "actionLocation": None},
+            ],
+            "routes": [{"from": step["id"], "to": review["id"], "source": "Draft policy, section 3",
+                        "creates": "Review request", "condition": "The draft is ready to send.", "handoff": True}],
+        }
+        outline_path = Path(directory) / "source-outline.json"
+        outline_path.write_text(json.dumps(outline), encoding="utf-8")
+        check = [*command, "--check-outline", str(outline_path)]
+        result = subprocess.run(check, capture_output=True, text=True, check=False)
+        require(result.returncode == 0 and "matches the supplied source outline" in result.stdout, result.stderr)
+
+        outline["steps"][0]["routesComplete"] = True
+        outline["routes"].append({"from": step["id"], "to": step["id"], "source": "Draft policy, section 3"})
+        outline_path.write_text(json.dumps(outline), encoding="utf-8")
+        result = subprocess.run(check, capture_output=True, text=True, check=False)
+        require(result.returncode == 0, result.stderr)
+
+        reviewed_render = [*command, "--render-reviewed", str(outline_path)]
+        result = subprocess.run(reviewed_render, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "Checkpoint 'read-inbox' needs routesComplete=true" in result.stderr
+                and "Checkpoint 'check-result' needs an assertion for actionLocation" in result.stderr,
+                "Reviewed rendering must check the receiving routes and each named location")
+        require(output.read_text(encoding="utf-8") == accepted_record_html,
+                "An uncovered new-record boundary must leave the previous page intact")
+
+        outline["steps"][1]["routesComplete"] = True
+        outline["steps"][0].update(statusLocation="Draft list", actionLocation="Draft editor")
+        outline_path.write_text(json.dumps(outline), encoding="utf-8")
+        result = subprocess.run(reviewed_render, capture_output=True, text=True, check=False)
+        require(result.returncode == 0 and output.read_text(encoding="utf-8") == accepted_record_html,
+                result.stderr or "Reviewed rendering changed the output of a valid map")
+
+        reached = {"label": "Find the already-saved request", "to": review["id"], "sources": ["send-contract"],
+                   "condition": "The previous send committed.", "existingRecord": "Review request"}
+        step["branches"].append(reached)
+        outline["routes"].append({"from": step["id"], "to": review["id"], "source": "Draft policy, section 3",
+                                  "condition": reached["condition"], "existingRecord": "Review request"})
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        outline_path.write_text(json.dumps(outline), encoding="utf-8")
+        result = subprocess.run(check, capture_output=True, text=True, check=False)
+        require(result.returncode == 0, result.stderr)
+        routes = subprocess.run([*command, "--review-routes"], capture_output=True, text=True, check=False)
+        resumed = routes.stdout.partition("Find the already-saved request")[2]
+        require(routes.returncode == 0 and "Existing record: Review request" in resumed and "New record:" not in resumed,
+                "An already-saved record must have its own transition effect")
+
+        reached["creates"] = reached.pop("existingRecord")
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(reviewed_render, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "existingRecord" in result.stderr
+                and output.read_text(encoding="utf-8") == accepted_record_html,
+                "A route that finds a saved record cannot satisfy a reviewed outline by marking it as created")
+        reached["existingRecord"] = "Review request"
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "cannot both create and continue on an existing record" in result.stderr,
+                "Record transition effects are mutually exclusive")
+        step["branches"].pop()
+        outline["routes"].pop()
+        outline_path.write_text(json.dumps(outline), encoding="utf-8")
+
+        retry_branch = step["branches"][0]
+        retry_branch["actionLocation"] = "Draft editor"
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(reviewed_render, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "needs a matching actionLocation assertion" in result.stderr
+                and output.read_text(encoding="utf-8") == accepted_record_html,
+                "A known step location does not establish the location of an alternate action")
+        outline["routes"][-1]["actionLocation"] = "Draft editor"
+        outline_path.write_text(json.dumps(outline), encoding="utf-8")
+        result = subprocess.run(check, capture_output=True, text=True, check=False)
+        require(result.returncode == 0, result.stderr)
+        del outline["routes"][-1]["actionLocation"]
+        outline_path.write_text(json.dumps(outline), encoding="utf-8")
+        retry_branch["actionLocation"] = None
+
+        step["branches"].append({
+            "label": "Restart a locked draft", "to": step["id"], "condition": "The draft is locked."
+        })
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(reviewed_render, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "Unexpected transition 'check-result' -> 'check-result'" in result.stderr
+                and "The draft is locked." in result.stderr
+                and output.read_text(encoding="utf-8") == accepted_record_html,
+                "A complete route outline must reject an extra choice even when it goes to an allowed checkpoint")
+        step["branches"].pop()
+
+        handoff = step.pop("nextHandoff")
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        outline["steps"][1]["actor"] = "author"
+        outline["steps"][0]["assignees"] = ["author", "reviewer"]
+        outline["routes"].append({"from": review["id"], "to": step["id"], "source": "Review policy, section 3"})
+        outline_path.write_text(json.dumps(outline), encoding="utf-8")
+        result = subprocess.run(check, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "expects actor='author'" in result.stderr
+                and "expects assignees=['author', 'reviewer']" in result.stderr
+                and "'handoff': True" in result.stderr
+                and "Missing transition 'read-inbox' -> 'check-result'" in result.stderr
+                and "Review policy, section 3" in result.stderr,
+                "The independent outline must detect an incorrect actor, missing route, and missing handoff")
+        require(output.read_text(encoding="utf-8") == accepted_record_html,
+                "A source-outline check must leave the generated page intact")
+        step["nextHandoff"] = handoff
+
+        branch = {"label": "Resume the original draft", "to": review["id"]}
+        step["branches"].append(branch)
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "without a record transition" in result.stderr,
+                "An original-record route must fail if it shares the new record's first step")
+        step["branches"].remove(branch)
+
+        actor_sources = review.pop("actorSources")
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "actorSources must support the actor on the new record" in result.stderr,
+                "A receiving actor for new work must have its own evidence")
+        review["actorSources"] = actor_sources
+
+        review["branches"] = [{"label": "Try again", "to": step["id"]}]
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "requires a local evidence gap and no outgoing routes" in result.stderr,
+                "An unverified next action cannot appear as a navigable retry")
+        require(output.read_text(encoding="utf-8") == accepted_record_html,
+                "Rejected routes must leave the previous valid page intact")
+        del step["record"], step["nextCreates"], review["record"], review["branches"], review["continuationUnknown"]
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode == 0, result.stderr)
+        rendered = output.read_text(encoding="utf-8")
+        restored = re.search(r'<script id="journey-data" type="application/json">(.*?)</script>', rendered)
+        require(restored is not None and json.loads(restored[1]) == journey,
+                "The renderer must preserve the restored journey after record effects are removed")
+
+        location = step.pop("actionLocation")
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and ".actionLocation must be a location or null" in result.stderr,
+                "A version 2 step must supply an action location or an explicit unknown")
+        step["actionLocation"] = location
+        step["surface"] = "Ambiguous location"
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "Use statusLocation and actionLocation" in result.stderr,
+                "A version 2 step must reject the shared legacy location")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "A rejected location record must leave the valid map intact")
+        del step["surface"]
+
+        assignment = step["assignments"][0]
+        assignment["role"] = "missing-reviewer"
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0
+                and "assignments[0].role refers to an unknown id: 'missing-reviewer'" in result.stderr,
+                "An assigned role must appear in the journey's role inventory")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "A rejected assignment must leave the valid map intact")
+        assignment["role"] = "reviewer"
+
         for metric, key, value, message in (
             (completion, "eligible", 7, ".eligible must be an integer from measured"),
             (completion, "count", 9, ".count must be an integer from 0 through measured"),
@@ -483,6 +774,26 @@ def test_journey_renderer_cli() -> None:
                 "An evidence gap must link to a step on its scenario")
         require(output.read_text(encoding="utf-8") == rendered,
                 "A rejected evidence gap must leave the valid map intact")
+        journey["scenarios"][0]["steps"].append(review["id"])
+
+        del gap["step"]
+        gap["steps"] = [step["id"], review["id"]]
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode == 0, result.stderr)
+        rendered = output.read_text(encoding="utf-8")
+        data = re.search(r'<script id="journey-data" type="application/json">(.*?)</script>', rendered)
+        require(data is not None and json.loads(data[1]) == journey,
+                "The standalone page must retain both checkpoints for one evidence gap")
+
+        journey["scenarios"][0]["steps"].remove(review["id"])
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0
+                and "scenarios[0].gaps[0].steps must all be listed in scenarios[0].steps" in result.stderr,
+                "Every checkpoint for a shared evidence gap must be part of the scenario")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "A rejected shared evidence gap must leave the valid map intact")
         journey["scenarios"][0]["steps"].append(review["id"])
 
         journey["gaps"] = journey["scenarios"][0].pop("gaps")

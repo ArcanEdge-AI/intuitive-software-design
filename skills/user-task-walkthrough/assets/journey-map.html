@@ -138,6 +138,8 @@
     .outcome-metric .coverage-steps { margin-top: .5rem; }
     .coverage-steps { display: grid; gap: .28rem; }
     .coverage-steps .button { display: grid; gap: .15rem; text-align: start; overflow-wrap: anywhere; }
+    ol.coverage-steps { margin: 0; padding-inline-start: 1.65rem; }
+    ol.coverage-steps .button { width: 100%; }
     .coverage-steps small { font-size: .75rem; color: var(--muted); }
     .comparison-content { width: min(72rem, calc(100% - clamp(2rem, 6vw, 5rem))); }
     .comparison + .comparison { margin-top: 1.3rem; padding-top: 1.1rem; border-top: 1px solid var(--line); }
@@ -366,10 +368,10 @@
       font-weight: 720;
     }
     .inspector h2 { font: 500 1.44rem/1.16 var(--serif); letter-spacing: -.02em; }
-    #step-surface { margin-top: .22rem; color: var(--muted); font-size: .85rem; }
     #step-actor { margin-top: .4rem; color: var(--gold-bright); font-size: .84rem; font-weight: 680; }
     .fields { margin-top: 1rem; }
     .fields > div { padding: .65rem 0; border-top: 1px solid var(--line); }
+    #step-assignments { margin: 0; padding-inline-start: 1.15rem; }
     .fields .result {
       margin: .4rem 0;
       padding: .65rem .7rem;
@@ -507,20 +509,25 @@
           <button type="button" class="button" id="overview">Back to overview</button>
         </div>
         <h2 id="step-title" tabindex="-1"></h2>
-        <p id="step-surface"></p>
         <p id="step-actor" hidden></p>
         <section class="step-context" id="evidence-gaps" aria-labelledby="evidence-gaps-heading" hidden>
           <h3 id="evidence-gaps-heading">Evidence gaps</h3>
           <div id="step-gaps"></div>
         </section>
         <dl class="fields">
+          <div id="record-field" hidden><dt>Record</dt><dd id="step-record"></dd></div>
           <div id="authority-field" hidden><dt>Who can act</dt><dd id="authority"></dd></div>
+          <div id="legacy-location-field" hidden><dt>Location (legacy)</dt><dd id="legacy-location"></dd></div>
+          <div id="status-location-field" hidden><dt>Where they see the status</dt><dd id="status-location"></dd></div>
           <div><dt>What they see and know</dt><dd id="cue"></dd></div>
           <div><dt>Likely expectation</dt><dd id="expectation"></dd></div>
+          <div id="action-location-field" hidden><dt>Where they take the action</dt><dd id="action-location"></dd></div>
           <div><dt>What they do</dt><dd id="action"></dd></div>
+          <div id="assignments-field" hidden><dt>Assigned responsibilities</dt><dd><ul id="step-assignments"></ul></dd></div>
           <div class="result"><dt>What happens</dt><dd id="result"></dd></div>
           <div><dt>How they continue</dt><dd id="continuation"></dd></div>
         </dl>
+        <div id="actor-evidence" hidden></div>
         <section class="alternatives" id="alternatives" aria-labelledby="alternatives-heading" hidden>
           <h3 id="alternatives-heading">Other outcomes</h3>
           <div id="branch-buttons"></div>
@@ -557,12 +564,14 @@
     const people = new Map((journey.people ?? []).map(person => [person.id, person]));
     const sources = new Map(journey.sources.map(source => [source.id, source]));
     const scenarios = journey.scenarios ?? [];
+    const gapSteps = gap => gap.steps ?? (gap.step === undefined ? [] : [gap.step]);
     const gapsByStep = new Map();
     for (const scenario of scenarios) {
       for (const gap of scenario.gaps ?? []) {
-        if (gap.step === undefined) continue;
-        if (!gapsByStep.has(gap.step)) gapsByStep.set(gap.step, []);
-        gapsByStep.get(gap.step).push(gap);
+        for (const id of gapSteps(gap)) {
+          if (!gapsByStep.has(id)) gapsByStep.set(id, []);
+          gapsByStep.get(id).push(gap);
+        }
       }
     }
     const basisLabels = {
@@ -629,7 +638,10 @@
     function gapCard(gap, heading, showStepName = false) {
       const card = element("div", undefined, "context-card gap-card");
       card.append(element(heading, gap.question));
-      if (showStepName && gap.step !== undefined) card.append(element("p", "At " + steps.get(gap.step).title));
+      if (showStepName) {
+        const names = gapSteps(gap).map(id => steps.get(id).title);
+        if (names.length) card.append(element("p", "At " + names.join(" · ")));
+      }
       const details = element("dl");
       details.append(
         element("dt", "Why it matters"), element("dd", gap.impact),
@@ -639,15 +651,21 @@
       return card;
     }
 
-    function checkpoints(ids) {
-      const links = element("div", undefined, "coverage-steps");
+    function checkpoints(ids, ordered = false) {
+      const links = element(ordered ? "ol" : "div", undefined, "coverage-steps");
       for (const id of ids) {
         const step = steps.get(id);
         const button = element("button", undefined, "button");
         button.type = "button";
         button.append(element("span", step.title), element("small", basisLabels[step.basis]));
         button.addEventListener("click", () => visit(id));
-        links.append(button);
+        if (ordered) {
+          const item = element("li");
+          item.append(button);
+          links.append(item);
+        } else {
+          links.append(button);
+        }
       }
       return links;
     }
@@ -658,11 +676,11 @@
       return item;
     }
 
-    function sourceCitations(ids) {
+    function sourceCitations(ids, label = "Source citations") {
       const evidence = element("details", undefined, "evidence");
       const list = element("ul");
       list.append(...ids.map(id => evidenceItem(sources.get(id))));
-      evidence.append(element("summary", "Source citations"), list);
+      evidence.append(element("summary", label), list);
       return evidence;
     }
 
@@ -670,7 +688,7 @@
       for (const scenario of scenarios) {
         const entry = element("section", undefined, "coverage-scenario");
         entry.append(element("h2", scenario.label));
-        if (scenario.steps.length) entry.append(checkpoints(scenario.steps));
+        if (scenario.steps.length) entry.append(checkpoints(scenario.steps, scenario.path));
         for (const gap of scenario.gaps ?? []) entry.append(gapCard(gap, "h3", true));
         get("scenario-list").append(entry);
       }
@@ -729,7 +747,10 @@
         to: step.next,
         label: step.nextLabel ?? steps.get(step.next).title,
         condition: step.nextCondition,
-        handoff: step.nextHandoff
+        handoff: step.nextHandoff,
+        sources: step.nextSources,
+        creates: step.nextCreates,
+        existingRecord: step.nextExistingRecord
       }, ...branches];
     }
 
@@ -783,12 +804,19 @@
     }
 
     function renderTransitions(choices) {
-      const described = choices.filter(choice => choice.condition || choice.handoff);
+      const hasLocation = choice => journey.version === 2 && "actionLocation" in choice;
+      const described = choices.filter(choice =>
+        choice.condition || choice.handoff || hasLocation(choice) || choice.sources?.length || choice.creates || choice.existingRecord);
       get("transitions").hidden = described.length === 0;
       get("transition-list").replaceChildren(...described.map(choice => {
         const card = element("div", undefined, "context-card");
         const details = element("dl");
         if (choice.condition) details.append(element("dt", "When this applies"), element("dd", choice.condition));
+        if (choice.creates) details.append(element("dt", "New record"), element("dd", choice.creates));
+        if (choice.existingRecord) details.append(element("dt", "Existing record"), element("dd", choice.existingRecord));
+        if (hasLocation(choice)) {
+          details.append(element("dt", "Where they take the action"), element("dd", choice.actionLocation ?? "Unspecified"));
+        }
         if (choice.handoff) {
           const receiver = people.get(steps.get(choice.to).actor);
           for (const [name, value] of [
@@ -798,7 +826,9 @@
             ["Confirmation", choice.handoff.acknowledgment]
           ]) details.append(element("dt", name), element("dd", value));
         }
-        card.append(element("h4", choice.label), details);
+        card.append(element("h4", choice.label));
+        if (details.childElementCount) card.append(details);
+        if (choice.sources?.length) card.append(sourceCitations(choice.sources, "Transition evidence"));
         return card;
       }));
     }
@@ -941,7 +971,9 @@
       const index = element("span", ordinal ? String(ordinal).padStart(2, "0") : "↳", "node-index");
       index.setAttribute("aria-hidden", "true");
       const actor = people.get(step.actor);
-      meta.append(index, element("span", actor?.label ?? step.surface, "node-location"));
+      meta.append(index);
+      const metaLabel = actor?.label ?? (journey.version === 1 ? step.surface : null);
+      if (metaLabel) meta.append(element("span", metaLabel, "node-location"));
       const hasGap = gapsByStep.has(id);
       if (hasGap) meta.append(element("span", "Gap", "node-gap"));
       const title = element("strong", step.title, "node-title");
@@ -1020,7 +1052,7 @@
       const step = steps.get(activeId);
       const ordinal = primaryPositions.get(activeId);
       const count = primary.length + (primary.length === 1 ? " step" : " steps");
-      get("guide-position").textContent = ordinal
+      get("guide-position").textContent = step?.continuationUnknown ? "Next action unverified" : ordinal
         ? "Step " + ordinal + " of " + primary.length
         : step ? "Alternate path" : count;
       get("start").hidden = Boolean(step);
@@ -1039,13 +1071,30 @@
       const step = steps.get(id);
       get("basis").textContent = basisLabels[step.basis];
       get("step-title").textContent = step.title;
-      get("step-surface").textContent = step.surface;
+      get("record-field").hidden = !step.record;
+      get("step-record").textContent = step.record ?? "";
+      const separateLocations = journey.version === 2;
+      get("legacy-location-field").hidden = separateLocations;
+      get("legacy-location").textContent = step.surface ?? "";
+      get("status-location-field").hidden = !separateLocations;
+      get("status-location").textContent = step.statusLocation ?? "Unspecified";
+      get("action-location-field").hidden = !separateLocations;
+      get("action-location").textContent = step.actionLocation ?? "Unspecified";
       const actor = people.get(step.actor);
       get("step-actor").hidden = !actor;
       get("step-actor").textContent = actor?.label ?? "";
+      const actorSources = step.actorSources ?? [];
+      const actorEvidence = get("actor-evidence");
+      actorEvidence.hidden = actorSources.length === 0;
+      actorEvidence.replaceChildren();
+      if (actorSources.length) actorEvidence.append(sourceCitations(actorSources, "Evidence for who can act"));
       get("authority-field").hidden = !step.authority;
       get("authority").textContent = step.authority ?? "";
       for (const field of ["cue", "expectation", "action", "result", "continuation"]) get(field).textContent = step[field];
+      const assignments = step.assignments ?? [];
+      get("assignments-field").hidden = assignments.length === 0;
+      get("step-assignments").replaceChildren(...assignments.map(({role, work}) =>
+        element("li", people.get(role).label + " — " + work)));
       const gaps = gapsByStep.get(id) ?? [];
       get("evidence-gaps").hidden = gaps.length === 0;
       get("step-gaps").replaceChildren(...gaps.map(gap => gapCard(gap, "h4")));
