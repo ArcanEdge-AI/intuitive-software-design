@@ -1,6 +1,6 @@
 ---
 name: user-task-walkthrough
-description: Walk through how an intended user would discover, decide, act, and verify completion across a product or website UI. Use when reviewing task usability, understanding a user journey, or shaping a workflow before proposing interface changes. Distinguish user-visible knowledge from agent implementation knowledge; do not use for visual styling alone.
+description: Trace how people discover, decide, act, and verify completion in software. Use for task usability reviews, end-to-end user journey maps, and workflow design. For a full map, trace meaningful choices, recovery, and changes of ownership. Generate interactive HTML when requested. Distinguish user-visible knowledge from implementation evidence.
 ---
 <!-- Copyright 2026 ArcanEdge AI. Licensed under Apache-2.0; preserve this notice when redistributing. Source: https://github.com/ArcanEdge-AI/intuitive-software-design -->
 
@@ -49,6 +49,20 @@ When runtime access is available, use the available browser or product tools to 
 Without runtime access, use screenshots, source, specifications, or prototypes within their limits. Cite source paths for implemented behavior; do not call it observed runtime behavior. Screenshot-only evidence cannot prove transitions, persistence, recovery, or keyboard operation. Check save/reopen or downstream effects when relevant and authorized; a toast alone does not prove persistence.
 
 Use supplied interviews, support reports, usability observations, or analytics to refine the task model. State which audience, task, and context each source covers. Analytics can show drop-off but may not explain its cause; support reports do not establish prevalence. Keep conflicting evidence visible rather than averaging away role differences. Do not obtain private research or install tools merely to fill evidence gaps.
+
+## Map the journey
+
+When asked for a journey map, interactive walkthrough, or HTML view, use the [journey map workflow](references/journey-map.md). Start with the job and the product version the evidence covers. Derive entry points, conditions, and roles from this project's UI, source, tests, screenshots, or specification.
+
+When asked to verify an existing map, use the [source audit](references/journey-map.md#audit-the-draft-from-the-sources) as a focused read-only review. Derive the expected routes from the evidence before reading the map. Return concrete discrepancies and citations. Edit and re-render only when the request includes corrections. If the source review supplies an independent outline, [check the draft against it](references/journey-map.md#check-a-separately-derived-source-outline).
+
+Before drafting a map with conditional routes or assignment modes, [trace consequential operations in the original sources](references/journey-map.md#trace-conditional-transitions). Prioritize branches that assign work or create a record. Follow the operation to the saved assignment, then find where the receiver can act. [Prepare a source outline](references/journey-map.md#check-a-separately-derived-source-outline) with the supported routes and separate status and action locations before writing `journey.json`. Use [Multi-Role Workflow](../multi-role-workflow/SKILL.md) when another person receives the work. Use [Journey Analytics](../journey-analytics/SKILL.md) to interpret supplied choice and outcome data or identify missing measurements.
+
+Verify claims about test coverage against the [pinned test](references/journey-map.md#verify-what-a-test-covers). Run the [implicit gap check](references/journey-map.md#find-implicit-evidence-gaps) after tracing the documented paths. Use the [coverage format](references/journey-map.md#record-coverage-and-evidence-gaps) to link scenarios to key steps and put each open question where the answer would change the user's next action or understanding of the result.
+
+When the team asks what to change, use [Purpose-First Redesign](../purpose-first-redesign/SKILL.md) for existing workflows and the [design process](../intuitive-software-design/references/intuitive-software-design-standard.md#39-design-process) for new designs. Add a [change comparison](references/journey-map.md#compare-changes) with sourced baselines, evidenced tradeoffs, and a check that would inform the choice. After drafting it, check that each missing current-state fact the choice depends on appears as an evidence gap on the affected step.
+
+Save the trace as `journey.json`. For a full map, [audit it from the sources](references/journey-map.md#audit-the-draft-from-the-sources). Check the saved [handoffs and alternate destinations](references/journey-map.md#check-the-saved-routes). Use [reviewed rendering](references/journey-map.md#render-and-check) for maps that change records or actors. Return the record and standalone `index.html`. Follow the ordinary walkthrough format for a prose review.
 
 ## Return an actionable result
 

@@ -9,8 +9,8 @@
 <p align="center">An evidence-grounded plugin for designing, reviewing, and improving software around the real tasks people need to complete.</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.3.1-9F7AEA?style=for-the-badge" alt="Version 1.3.1" />
-  <img src="https://img.shields.io/badge/skills-8-2563EB?style=for-the-badge" alt="Eight focused skills" />
+  <img src="https://img.shields.io/badge/version-1.4.0-9F7AEA?style=for-the-badge" alt="Version 1.4.0" />
+  <img src="https://img.shields.io/badge/skills-9-2563EB?style=for-the-badge" alt="Nine focused skills" />
   <img src="https://img.shields.io/badge/harness-Claude%20Code%20%7C%20Codex-111827?style=for-the-badge" alt="Claude Code and Codex plugin formats" />
   <img src="https://img.shields.io/badge/license-Apache--2.0%20%2B%20reserved%20artwork-9F7AEA?style=for-the-badge" alt="Apache-licensed skills and reserved artwork" />
 </p>
@@ -83,14 +83,21 @@ The main skill routes the request into **Design**, **Review**, **Audit**, or **I
 | --- | --- |
 | `intuitive-software-design` | Apply the central standard to design, review, audit, or improve a product experience. |
 | `purpose-first-redesign` | Understand a product's purpose and current structure before proposing a redesign. |
-| `user-task-walkthrough` | Trace a person's goal, knowledge, decisions, expected consequences, completion, and recovery. |
+| `user-task-walkthrough` | Trace a person's task, decisions, completion, and recovery. Make an interactive journey map when requested. |
 | `product-mental-model` | Align product concepts, content, and navigation with how users understand the work. |
 | `decision-support-design` | Help people compare options, understand trade-offs, and choose with confidence. |
 | `multi-role-workflow` | Clarify ownership, state transitions, handoffs, and recovery across roles. |
+| `journey-analytics` | Measure next actions, completion, waiting time, rework, and recovery by cohort using supplied data. |
 | `connected-experience-design` | Design task-relevant continuity across devices, platforms, products, and services. |
 | `behavioral-evaluation` | Run a structured, separate assessment of agent outputs with controlled scenarios. |
 
 The skills share one authoritative standard rather than maintaining competing definitions. Supporting files include audit and review templates, worked examples, scoring guidance, UI language and findability references, and six Mermaid diagrams.
+
+## Interactive journey maps
+
+Try asking “Map how a staff member completes this task. Include the pending state and how they recover from a failure. Give me an interactive HTML page.”
+
+The walkthrough saves `journey.json` and renders a standalone `index.html` with Python 3.8 or newer and no third-party dependencies. Open the HTML to explore the main route, alternate outcomes, handoffs, and supplied decision measurements. **Coverage** links scenarios to their checkpoints and shows open evidence questions on the affected steps. **Journey outcomes** shows measured results and data coverage by cohort when evidence is available. **What to change** lays out the options, their supporting evidence and tradeoffs, and what to test before choosing. The [journey map workflow](skills/user-task-walkthrough/references/journey-map.md) explains how to refresh the record and regenerate the page.
 
 ## The design loop
 
@@ -134,7 +141,7 @@ claude plugin validate --strict .
 claude plugin validate --strict .claude-plugin/plugin.json
 ```
 
-The structural tests check the package and its routing expectations. Use a fresh agent session for behavior checks so it loads the current plugin version.
+The package checks cover structure, routing expectations, and the journey renderer CLI. Use a fresh agent session to test how the current plugin version routes and completes requests.
 
 ## Repository map
 
