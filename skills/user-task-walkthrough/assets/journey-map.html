@@ -145,6 +145,8 @@
     .comparison + .comparison { margin-top: 1.3rem; padding-top: 1.1rem; border-top: 1px solid var(--line); }
     .comparison h2 { font: 500 clamp(1.2rem, 2.2vw, 1.65rem)/1.2 var(--serif); overflow-wrap: anywhere; }
     .comparison-goal { margin-top: .35rem; }
+    .comparison-finding { margin-top: .65rem; }
+    .comparison-finding > .evidence { margin-top: .5rem; }
     .comparison-options {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(min(100%, 17.5rem), 1fr));
@@ -161,6 +163,7 @@
     }
     .comparison-option .option-kind { color: var(--gold); font-size: .75rem; font-weight: 700; }
     .comparison-option h3 { margin: .15rem 0 .5rem; font-size: 1rem; line-height: 1.3; }
+    .comparison-option > .primary { margin-block: .15rem .5rem; }
     .comparison-details dt { margin-top: .5rem; }
     .comparison-option .coverage-steps { margin-top: .7rem; }
     .comparison-validation {
@@ -194,20 +197,14 @@
       padding-block-end: calc(.72rem + env(safe-area-inset-bottom, 0px));
       border-top: 1px solid var(--line);
     }
-    .legend, .zoom, .guide-buttons {
+    .route-tools, .zoom, .guide-buttons {
       display: flex;
       flex-wrap: wrap;
       gap: .5rem .85rem;
       align-items: center;
     }
-    .legend { color: var(--muted); font-size: .8rem; }
-    .legend span { display: inline-flex; align-items: center; gap: .42rem; }
-    .legend span::before {
-      content: "";
-      width: 1.18rem;
-      border-top: 2px solid var(--gold);
-    }
-    .legend #alternate-key::before { border-top: 2px dashed var(--copper); }
+    .route-tools { color: var(--muted); font-size: .8rem; }
+    #alternate-toggle[aria-pressed="true"] { border-color: var(--copper); color: var(--copper); }
     .zoom { gap: .32rem; }
     .zoom-level {
       margin-inline-start: .28rem;
@@ -307,14 +304,15 @@
     }
     .node.alternate .node-index { background: var(--copper-wash); color: var(--copper); }
     .node-location { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .node-gap {
+    .node-gap, .node-review {
       flex: none;
       padding: .12rem .28rem;
       border: 1px solid var(--copper-frame);
       border-radius: .28rem;
       color: var(--copper);
     }
-    .node-title, .node-description {
+    .node-review { color: var(--gold-bright); border-color: var(--frame); }
+    .node-title {
       display: -webkit-box;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
@@ -322,7 +320,6 @@
       overflow-wrap: anywhere;
     }
     .node-title { font-size: 1rem; font-weight: 750; line-height: 1.22; }
-    .node-description { color: var(--muted); font-size: .79rem; line-height: 1.36; }
     .branch-tag {
       position: absolute;
       transform: translate(-50%, -50%);
@@ -381,7 +378,7 @@
     }
     .alternatives { margin: .65rem 0; }
     .alternatives h3 { margin-bottom: .4rem; color: var(--copper); font-size: .82rem; }
-    #branch-buttons { display: flex; flex-wrap: wrap; gap: .45rem; }
+    #branch-buttons, #preview-actions { display: grid; gap: .45rem; }
     .evidence { border-top: 1px solid var(--line); margin-top: .65rem; padding-top: .63rem; }
     .evidence summary { padding-block: .25rem; font-size: .86rem; font-weight: 710; }
     .evidence ul { padding-left: 1.15rem; }
@@ -407,6 +404,32 @@
     .context-card li + li { margin-top: .2rem; }
     .gap-card { border-color: var(--copper-frame); background: var(--copper-wash); overflow-wrap: anywhere; }
     .gap-card h3 { margin: 0 0 .22rem; font-size: .86rem; }
+    .preview {
+      width: min(37rem, calc(100% - 2rem));
+      max-height: calc(100dvh - 2rem);
+      padding: clamp(1rem, 4vw, 1.65rem);
+      color: var(--ink);
+      background: var(--panel);
+      border: 1px solid var(--control-border);
+      border-radius: .85rem;
+      box-shadow: 0 1rem 3rem #000b;
+      overflow-wrap: anywhere;
+    }
+    .preview::backdrop { background: #000b; }
+    .preview-top, .preview-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .preview h2 { font: 500 clamp(1.45rem, 4vw, 2rem)/1.15 var(--serif); margin-block: .6rem .25rem; }
+    #preview-option, #preview-actor { color: var(--muted); font-size: .85rem; }
+    #preview-body { margin-block: .8rem; }
+    .preview-fields { padding: .6rem .85rem; margin-block: .9rem; border: 1px solid var(--line); border-radius: .55rem; }
+    .preview-fields dt { color: var(--muted); font-size: .78rem; }
+    .preview-fields dd { margin-bottom: .4rem; }
+    .preview-controls { justify-content: flex-start; margin-top: 1rem; padding-top: .8rem; border-top: 1px solid var(--line); }
     .no-script { padding: 1rem; }
     @media (min-width: 56rem) and (min-height: 35rem) {
       .app { height: 100vh; height: 100dvh; }
@@ -434,6 +457,7 @@
         <div class="masthead-copy">
           <p class="product-name">ArcanEdge AI · Intuitive Software Design</p>
           <h1 id="title">Journey map</h1>
+          <p id="proposed-journey" class="product-name" hidden>Proposed journey</p>
           <p id="goal"></p>
         </div>
       </div>
@@ -446,11 +470,11 @@
               <div><dt>Starting point</dt><dd id="entry"></dd></div>
               <div><dt>Done when</dt><dd id="success"></dd></div>
             </dl>
+            <section class="step-context" id="people" aria-labelledby="people-heading" hidden>
+              <h3 id="people-heading">People and responsibilities</h3>
+              <dl id="people-list"></dl>
+            </section>
           </div>
-        </details>
-        <details class="brief" id="people" name="journey-reference" hidden>
-          <summary>People and responsibilities</summary>
-          <div class="brief-content"><dl id="people-list"></dl></div>
         </details>
         <details class="brief" id="coverage-panel" name="journey-reference" hidden>
           <summary>Coverage</summary>
@@ -473,9 +497,9 @@
     <main class="workbench" id="workbench" hidden>
       <section class="map" aria-label="Journey map">
         <div class="toolbar">
-          <div class="legend">
-            <span>Main route</span>
-            <span id="alternate-key" hidden>Alternate route</span>
+          <div class="route-tools">
+            <span id="map-scope">Main route</span>
+            <button type="button" class="button" id="alternate-toggle" aria-pressed="false" hidden>Alternate paths</button>
           </div>
           <div class="zoom" role="group" aria-label="Map zoom">
             <button type="button" class="button" id="zoom-out" aria-label="Zoom out">−</button>
@@ -510,11 +534,21 @@
         </div>
         <h2 id="step-title" tabindex="-1"></h2>
         <p id="step-actor" hidden></p>
-        <section class="step-context" id="evidence-gaps" aria-labelledby="evidence-gaps-heading" hidden>
-          <h3 id="evidence-gaps-heading">Evidence gaps</h3>
-          <div id="step-gaps"></div>
-        </section>
         <dl class="fields">
+          <div><dt>What they do</dt><dd id="action"></dd></div>
+          <div class="result"><dt>What happens</dt><dd id="result"></dd></div>
+        </dl>
+        <section class="alternatives" id="alternatives" aria-labelledby="alternatives-heading" hidden>
+          <h3 id="alternatives-heading">Other outcomes</h3>
+          <div id="branch-buttons"></div>
+        </section>
+        <section class="step-context" id="change-findings" aria-labelledby="change-findings-heading" hidden>
+          <h3 id="change-findings-heading">Change opportunities</h3>
+          <div id="step-findings"></div>
+        </section>
+        <details class="evidence" id="step-details">
+          <summary>Step details and evidence</summary>
+          <dl class="fields">
           <div id="record-field" hidden><dt>Record</dt><dd id="step-record"></dd></div>
           <div id="authority-field" hidden><dt>Who can act</dt><dd id="authority"></dd></div>
           <div id="legacy-location-field" hidden><dt>Location (legacy)</dt><dd id="legacy-location"></dd></div>
@@ -522,16 +556,14 @@
           <div><dt>What they see and know</dt><dd id="cue"></dd></div>
           <div><dt>Likely expectation</dt><dd id="expectation"></dd></div>
           <div id="action-location-field" hidden><dt>Where they take the action</dt><dd id="action-location"></dd></div>
-          <div><dt>What they do</dt><dd id="action"></dd></div>
           <div id="assignments-field" hidden><dt>Assigned responsibilities</dt><dd><ul id="step-assignments"></ul></dd></div>
-          <div class="result"><dt>What happens</dt><dd id="result"></dd></div>
           <div><dt>How they continue</dt><dd id="continuation"></dd></div>
         </dl>
-        <div id="actor-evidence" hidden></div>
-        <section class="alternatives" id="alternatives" aria-labelledby="alternatives-heading" hidden>
-          <h3 id="alternatives-heading">Other outcomes</h3>
-          <div id="branch-buttons"></div>
+        <section class="step-context" id="evidence-gaps" aria-labelledby="evidence-gaps-heading" hidden>
+          <h3 id="evidence-gaps-heading">Evidence gaps</h3>
+          <div id="step-gaps"></div>
         </section>
+        <div id="actor-evidence" hidden></div>
         <section class="step-context" id="transitions" aria-labelledby="transitions-heading" hidden>
           <h3 id="transitions-heading">Transitions and handoffs</h3>
           <div id="transition-list"></div>
@@ -545,6 +577,7 @@
           <ul id="evidence-sources"></ul>
           <p id="evidence-empty" hidden>No source recorded for this step.</p>
         </details>
+        </details>
       </aside>
     </main>
     <footer class="guide" id="guide" hidden>
@@ -556,6 +589,22 @@
       </div>
     </footer>
   </div>
+  <dialog class="preview" id="proposed-preview" aria-labelledby="preview-title">
+    <div class="preview-top">
+      <p class="product-name">Proposed flow · Sample data</p>
+      <button type="button" class="button" id="preview-close">Close preview</button>
+    </div>
+    <p id="preview-option"></p>
+    <h2 id="preview-title" tabindex="-1"></h2>
+    <p id="preview-actor"></p>
+    <p id="preview-body"></p>
+    <dl class="preview-fields" id="preview-fields" hidden></dl>
+    <div id="preview-actions" role="group" aria-label="Preview actions"></div>
+    <div class="preview-controls">
+      <button type="button" class="button" id="preview-back">← Back</button>
+      <button type="button" class="button" id="preview-restart">Restart preview</button>
+    </div>
+  </dialog>
   <script id="journey-data" type="application/json">__JOURNEY_JSON__</script>
   <script>
     const get = id => document.getElementById(id);
@@ -564,6 +613,15 @@
     const people = new Map((journey.people ?? []).map(person => [person.id, person]));
     const sources = new Map(journey.sources.map(source => [source.id, source]));
     const scenarios = journey.scenarios ?? [];
+    const comparisons = journey.comparisons ?? [];
+    const comparisonsByStep = new Map();
+    const comparisonHeadings = new Map();
+    for (const comparison of comparisons) {
+      if (!comparison.finding) continue;
+      const {step} = comparison.finding;
+      if (!comparisonsByStep.has(step)) comparisonsByStep.set(step, []);
+      comparisonsByStep.get(step).push(comparison);
+    }
     const gapSteps = gap => gap.steps ?? (gap.step === undefined ? [] : [gap.step]);
     const gapsByStep = new Map();
     for (const scenario of scenarios) {
@@ -584,7 +642,7 @@
     const primary = [];
     for (let id = journey.start; id !== null; id = steps.get(id).next) primary.push(id);
     const primaryPositions = new Map(primary.map((id, index) => [id, index + 1]));
-    const card = {width: 224, height: 138, gapX: 54, gapY: 94, insetX: 46, insetY: 48};
+    const card = {width: 224, height: 100, gapX: 48, gapY: 76, insetX: 36, insetY: 36};
     const positions = new Map();
     const occupied = new Set();
     const columns = Math.ceil(Math.sqrt(primary.length));
@@ -616,14 +674,16 @@
       }
     }
     const lastRow = Math.max(...Array.from(positions.values(), position => position.row));
+    const mainLastRow = Math.floor((primary.length - 1) / columns);
     const width = card.insetX * 2 + card.width + (card.width + card.gapX) * (columns - 1);
-    const height = card.insetY * 2 + card.height + (card.height + card.gapY) * lastRow;
     const viewport = get("viewport");
     const nodes = new Map();
     const edges = [];
     const branchLabels = [];
     const visited = [];
     let activeId = null;
+    let height = 0;
+    let showAlternates = false;
     let zoom = 1;
     let fitted = false;
     let drag = null;
@@ -695,6 +755,48 @@
       get("coverage-panel").hidden = false;
     }
 
+    function openPreview(option, opener) {
+      const dialog = get("proposed-preview");
+      const {start} = option.preview;
+      const screens = new Map(option.preview.screens.map(screen => [screen.id, screen]));
+      const history = [];
+      let current = start;
+      const renderScreen = id => {
+        current = id;
+        const screen = screens.get(id);
+        get("preview-title").textContent = screen.title;
+        get("preview-actor").textContent = screen.actor;
+        get("preview-body").textContent = screen.body;
+        const fields = screen.fields ?? [];
+        get("preview-fields").hidden = fields.length === 0;
+        get("preview-fields").replaceChildren(...fields.flatMap(({label, value}) =>
+          [element("dt", label), element("dd", value)]));
+        get("preview-actions").replaceChildren(...(screen.actions ?? []).map(({label, to}, index) => {
+          const button = element("button", label, index === 0 ? "button primary" : "button");
+          button.type = "button";
+          button.addEventListener("click", () => {
+            history.push(current);
+            renderScreen(to);
+          });
+          return button;
+        }));
+        get("preview-back").disabled = history.length === 0;
+        dialog.scrollTop = 0;
+        get("preview-title").focus({preventScroll: true});
+      };
+      get("preview-option").textContent = option.label;
+      get("preview-back").onclick = () => {
+        if (history.length) renderScreen(history.pop());
+      };
+      get("preview-restart").onclick = () => {
+        history.length = 0;
+        renderScreen(start);
+      };
+      dialog.addEventListener("close", () => opener.focus(), {once: true});
+      dialog.showModal();
+      renderScreen(start);
+    }
+
     function comparisonOption(option) {
       const card = element("article", undefined, "comparison-option");
       const details = element("dl", undefined, "comparison-details");
@@ -707,20 +809,40 @@
       ]) {
         if (value !== undefined) details.append(element("dt", label), element("dd", value));
       }
-      card.append(
-        element("p", option.kind === "baseline" ? "Baseline" : "Proposed", "option-kind"),
-        element("h3", option.label),
-        details,
-        checkpoints(option.steps)
-      );
+      card.append(element("p", option.kind === "baseline" ? "Baseline" : "Proposed", "option-kind"),
+        element("h3", option.label));
+      if (option.preview) {
+        const button = element("button", "Preview proposed flow", "button primary");
+        button.type = "button";
+        button.title = option.label;
+        button.addEventListener("click", () => openPreview(option, button));
+        card.append(button);
+      }
+      card.append(details, checkpoints(option.steps));
       const refs = option.sources ?? [];
       if (refs.length) card.append(sourceCitations(refs));
       return card;
     }
 
-    function renderComparisons(comparisons) {
+    function findingText(finding) {
+      const basis = finding.basis === "proposed" ? "Potential friction" : basisLabels[finding.basis];
+      return basis + " · " + finding.summary;
+    }
+
+    function renderComparisons() {
       for (const comparison of comparisons) {
         const entry = element("section", undefined, "comparison");
+        const heading = element("h2", comparison.question);
+        heading.tabIndex = -1;
+        comparisonHeadings.set(comparison, heading);
+        entry.append(heading, element("p", comparison.goal, "comparison-goal"));
+        const finding = comparison.finding;
+        if (finding) {
+          const cause = element("div", undefined, "comparison-finding");
+          cause.append(element("p", findingText(finding)), checkpoints([finding.step]));
+          if (finding.sources?.length) cause.append(sourceCitations(finding.sources, "Finding evidence"));
+          entry.append(cause);
+        }
         const options = element("div", undefined, "comparison-options");
         options.append(...comparison.options.map(comparisonOption));
         const validation = element("dl", undefined, "comparison-validation comparison-details");
@@ -728,15 +850,26 @@
           element("dt", "What to test"), element("dd", comparison.check),
           element("dt", "How to choose"), element("dd", comparison.decisionRule)
         );
-        entry.append(
-          element("h2", comparison.question),
-          element("p", comparison.goal, "comparison-goal"),
-          options,
-          validation
-        );
+        entry.append(options, validation);
         get("comparison-list").append(entry);
       }
       get("change-panel").hidden = comparisons.length === 0;
+    }
+
+    function renderStepFindings(id) {
+      const relevant = comparisonsByStep.get(id) ?? [];
+      get("change-findings").hidden = relevant.length === 0;
+      get("step-findings").replaceChildren(...relevant.map(comparison => {
+        const card = element("div", undefined, "context-card");
+        const button = element("button", comparison.question, "button");
+        button.type = "button";
+        button.addEventListener("click", () => {
+          get("change-panel").open = true;
+          comparisonHeadings.get(comparison).focus();
+        });
+        card.append(element("p", findingText(comparison.finding)), button);
+        return card;
+      }));
     }
 
     function choicesFor(step) {
@@ -928,7 +1061,8 @@
       path.setAttribute("class", isPrimary ? "edge" : "edge alternate");
       path.setAttribute("marker-end", isPrimary ? "url(#route-arrow)" : "url(#alternate-arrow)");
       get("connections").append(path);
-      edges.push({from, to, path});
+      const edge = {from, to, path, primary: isPrimary, tag: null};
+      edges.push(edge);
       if (id !== "next") {
         const tag = element("button", label, "branch-tag");
         tag.type = "button";
@@ -956,6 +1090,7 @@
         tag.style.left = x + "px";
         tag.style.top = y + "px";
         tag.addEventListener("click", () => visit(to));
+        edge.tag = tag;
         get("branch-tags").append(tag);
       }
     }
@@ -976,10 +1111,13 @@
       if (metaLabel) meta.append(element("span", metaLabel, "node-location"));
       const hasGap = gapsByStep.has(id);
       if (hasGap) meta.append(element("span", "Gap", "node-gap"));
+      const hasFinding = comparisonsByStep.has(id);
+      if (hasFinding) meta.append(element("span", "Review", "node-review"));
       const title = element("strong", step.title, "node-title");
-      node.append(meta, title, element("span", step.result, "node-description"));
+      node.append(meta, title);
       const name = ordinal ? "Step " + ordinal + ". " + step.title : "Alternate step. " + step.title;
-      node.setAttribute("aria-label", [name, actor?.label, hasGap ? "Evidence gaps" : null].filter(Boolean).join(". "));
+      node.setAttribute("aria-label", [name, actor?.label, hasGap ? "Evidence gaps" : null,
+        hasFinding ? "Change opportunities" : null].filter(Boolean).join(". "));
       node.addEventListener("click", () => visit(id));
       get("nodes").append(node);
       nodes.set(id, node);
@@ -1043,6 +1181,20 @@
       style.setProperty("--guide-height", get("guide").offsetHeight + "px");
     }
 
+    function renderMapScope() {
+      const row = showAlternates ? lastRow : Math.max(mainLastRow, positions.get(activeId)?.row ?? 0);
+      height = card.insetY * 2 + card.height + (card.height + card.gapY) * row;
+      Object.assign(get("world").style, {width: width + "px", height: height + "px"});
+      get("connections").setAttribute("viewBox", "0 0 " + width + " " + height);
+      get("map-scope").textContent = showAlternates ? "Main and alternate paths" : "Main route";
+      get("alternate-toggle").setAttribute("aria-pressed", String(showAlternates));
+      for (const [id, node] of nodes) node.hidden = !showAlternates && !primaryPositions.has(id) && id !== activeId;
+      for (const edge of edges) {
+        edge.path.toggleAttribute("hidden", !showAlternates && !edge.primary);
+        if (edge.tag) edge.tag.hidden = !showAlternates || edge.from !== activeId;
+      }
+    }
+
     function renderSelection() {
       for (const [stepId, button] of nodes) {
         if (stepId === activeId) button.setAttribute("aria-current", "step");
@@ -1063,6 +1215,7 @@
         ? "" : (step.nextLabel ?? steps.get(step.next).title) + " →";
       get("inspector").hidden = !step;
       get("workbench").classList.toggle("show-inspector", Boolean(step));
+      renderMapScope();
       reserveChromeSpace();
     }
 
@@ -1098,6 +1251,7 @@
       const gaps = gapsByStep.get(id) ?? [];
       get("evidence-gaps").hidden = gaps.length === 0;
       get("step-gaps").replaceChildren(...gaps.map(gap => gapCard(gap, "h4")));
+      renderStepFindings(id);
 
       const branches = step.branches ?? [];
       get("alternatives").hidden = branches.length === 0;
@@ -1110,6 +1264,7 @@
       const choices = choicesFor(step);
       renderTransitions(choices);
       renderMeasurements(step.measurements ?? [], choices);
+      get("step-details").open = false;
       get("evidence").open = false;
       const refs = step.sources.map(sourceId => sources.get(sourceId));
       get("evidence-heading").textContent = refs.length ? "Evidence (" + refs.length + ")" : "Evidence";
@@ -1126,7 +1281,6 @@
     function visit(id) {
       if (activeId !== null && id !== activeId) visited.push(activeId);
       get("brief").open = false;
-      get("people").open = false;
       get("coverage-panel").open = false;
       get("outcomes-panel").open = false;
       get("change-panel").open = false;
@@ -1134,16 +1288,15 @@
     }
 
     document.title = journey.title + " · Journey map";
+    get("proposed-journey").hidden = !journey.steps.every(step => step.basis === "proposed");
     for (const field of ["title", "goal", "role", "entry", "success", "coverage"]) get(field).textContent = journey[field];
-    Object.assign(get("world").style, {width: width + "px", height: height + "px"});
-    get("connections").setAttribute("viewBox", "0 0 " + width + " " + height);
     for (const id of drawOrder) {
       const step = steps.get(id);
       const measurement = step.measurements?.length === 1 ? step.measurements[0] : undefined;
       for (const choice of choicesFor(step)) drawEdge(id, choice, measurement);
       drawNode(id);
     }
-    get("alternate-key").hidden = !edges.some(edge => edge.path.classList.contains("alternate"));
+    get("alternate-toggle").hidden = edges.every(edge => edge.primary);
     get("workbench").hidden = false;
     get("brief").hidden = false;
     for (const person of people.values()) {
@@ -1154,7 +1307,7 @@
     get("people").hidden = people.size === 0;
     renderCoverage();
     renderOutcomes(journey.outcomes ?? []);
-    renderComparisons(journey.comparisons ?? []);
+    renderComparisons();
     get("guide").hidden = false;
     renderSelection();
     overviewView();
@@ -1170,6 +1323,13 @@
       get("start").focus();
     });
     get("fit").addEventListener("click", fitMap);
+    get("alternate-toggle").addEventListener("click", () => {
+      showAlternates = !showAlternates;
+      renderMapScope();
+      if (activeId !== null) showView(zoom, centerOf(activeId));
+      else overviewView();
+    });
+    get("preview-close").addEventListener("click", () => get("proposed-preview").close());
     get("zoom-out").addEventListener("click", () => zoomBy(1 / 1.19));
     get("zoom-in").addEventListener("click", () => zoomBy(1.19));
     window.addEventListener("resize", () => {

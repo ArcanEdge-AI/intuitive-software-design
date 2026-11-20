@@ -441,10 +441,24 @@ def test_journey_renderer_cli() -> None:
             "openQuestion": "Can authors use the link after leaving the submission view?",
             "steps": [step["id"]],
             "sources": ["draft-spec"],
+            "preview": {
+                "start": "confirmation",
+                "screens": [
+                    {"id": "confirmation", "title": "Draft saved", "actor": "Author",
+                     "body": "The sample draft remains available after confirmation.",
+                     "actions": [{"label": "Open the draft", "to": "draft"}]},
+                    {"id": "draft", "title": "Sample draft", "actor": "Author",
+                     "body": "The saved draft opens with its original values."},
+                ],
+            },
         }
         journey["comparisons"] = [{
             "question": "How should an author find a submitted draft?",
             "goal": "Let the author reopen the saved draft.",
+            "finding": {
+                "step": step["id"], "basis": "specified", "sources": ["draft-spec"],
+                "summary": "The author needs to locate the saved draft in the original list.",
+            },
             "options": [draft_list, draft_link],
             "check": "Ask authors to reopen a submitted draft using each option.",
             "decisionRule": "Choose the link if it helps authors find the draft and preserves access.",
@@ -765,6 +779,32 @@ def test_journey_renderer_cli() -> None:
         require(output.read_text(encoding="utf-8") == rendered,
                 "An unsupported baseline record must leave the valid map intact")
         draft_list["sources"] = ["draft-spec"]
+
+        finding = journey["comparisons"][0]["finding"]
+        finding["step"] = "missing-step"
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "comparisons[0].finding.step refers to an unknown id" in result.stderr,
+                "A friction finding must link to a mapped checkpoint")
+        finding["step"] = step["id"]
+        finding.pop("sources")
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "finding.sources needs supporting evidence" in result.stderr,
+                "A source-backed friction finding needs evidence")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "A rejected friction finding must leave the valid map intact")
+        finding["sources"] = ["draft-spec"]
+
+        preview_action = draft_link["preview"]["screens"][0]["actions"][0]
+        preview_action["to"] = "missing-screen"
+        record.write_text(json.dumps(journey), encoding="utf-8")
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        require(result.returncode != 0 and "preview.screens.confirmation.actions[0].to refers to an unknown id"
+                in result.stderr, "A proposed flow must reject broken action links")
+        require(output.read_text(encoding="utf-8") == rendered,
+                "A rejected preview must leave the valid map intact")
+        preview_action["to"] = "draft"
 
         journey["scenarios"][0]["steps"].remove(review["id"])
         record.write_text(json.dumps(journey), encoding="utf-8")
